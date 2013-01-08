@@ -1,0 +1,29 @@
+name = Cartaro 
+description = Geospatial CMS
+core = 7.x
+
+; Core modules
+dependencies[] = dashboard
+dependencies[] = dblog
+dependencies[] = field_ui
+dependencies[] = help
+dependencies[] = menu
+dependencies[] = path
+dependencies[] = toolbar
+dependencies[] = update
+
+; Contrib modules
+dependencies[] = features
+dependencies[] = feeds_ui
+dependencies[] = geoserver_ui
+dependencies[] = nodetype_access
+dependencies[] = ole
+dependencies[] = openlayers_ui
+dependencies[] = openlayers_layer_assistant
+dependencies[] = postgis
+; Information added by drupal.org packaging script on 2012-10-19
+version = "7.x-1.0-beta2"
+core = "7.x"
+project = "cartaro"
+datestamp = "1350636668"
+
