@@ -23,7 +23,9 @@ DirectoryIndex index.php index.html index.htm
   AuthType basic
   AuthName "Taiwan Coastline Development Area"
   AuthBasicProvider file
-  AuthUserFile /home/coast/passwd
+  # ServerRoot      /etc/apache2 
+  # DocumentRoot    /var/www/coast.e-info.org.tw/web
+  AuthUserFile  /var/www/coast.e-info.org.tw/web/.passwd
   Require valid-user
 </IfModule>
 
