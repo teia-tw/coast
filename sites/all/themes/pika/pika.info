@@ -1,0 +1,101 @@
+name = 5 pika
+description = Premium theme for Drupal 7.
+core = 7.x
+engine = phptemplate
+
+
+stylesheets[all][] = css/style.css
+stylesheets[all][] = css/menus.css
+stylesheets[all][] = css/responsive.css
+
+
+scripts[] = js/uniform.js
+scripts[] = js/template.js
+scripts[] = js/responsive.js
+
+scripts[] = js/libs/modernizr-2.0.6.min.js
+
+scripts[] = js/libs/gumby.min.js
+
+scripts[] = js/jquery.flexslider-min.js
+;scripts[] = js/modernizr.custom.js
+
+
+scripts[] = js/jquery.isotope.min.js
+
+
+
+;REVOLUTION BANNER CSS SETTINGS
+stylesheets[all][] = css/fullwidth.css
+stylesheets[all][] = css/settings.css
+
+scripts[] = js/rs-plugin/jquery.themepunch.plugins.min.js
+scripts[] = js/rs-plugin/jquery.themepunch.revolution.min.js
+
+regions[header_features]   = Header Features
+regions[slider]    		   = Panel Slider
+regions[slider_r]    		   = Refine Slider
+regions[boxes]    		   = Boxes
+regions[sidebar]    	   = Sidebar
+regions[content_top]      		= Content Top
+regions[content] 	       		= Content
+regions[content_bottom]    		= Content Bottom
+regions[content_bottom_left]    = Content Bottom Left
+regions[content_bottom_right]    = Content Bottom Right
+regions[prefooter_first]   = Prefooter First
+regions[prefooter_second]  = Prefooter Second
+regions[footer_first]      = Footer First
+regions[footer_second]     = Footer Second
+regions[footer_third]      = Footer Third
+regions[footer_fourth]     = Footer Fourth
+regions[copyright]         = Copyright
+
+
+
+features[] = logo
+features[] = name
+features[] = slogan
+features[] = node_user_picture
+features[] = comment_user_picture
+features[] = comment_user_verification
+features[] = favicon
+features[] = main_menu
+features[] = secondary_menu
+
+settings[breadcrumb_title] = 1
+settings[slider-show] = rev
+settings[layout_mode] = wide
+settings[sidebar_mode] = right
+
+settings[portfolio-columns] = 4
+settings[gallery-columns] = 4
+
+settings[body_font] = Open Sans
+settings[heading_font] = Open Sans
+settings[menu_font] = Open Sans
+
+settings[header_line_bg] = pika_line.png
+
+settings[body_font_color] = #555555
+settings[body_font_link_color] = #326d9b
+settings[body_font_link_color_hover] = #3f9be2
+settings[heading_font_color] = #444444
+settings[style_menu_color] = #326E9B
+settings[style_menu_color_hover] = #1AA1DA
+settings[style_menu_font] = #ffffff
+settings[style_page_title_color] = #ffffff
+settings[style_page_title_bgcolor] = #326E9B
+settings[style_breadcrumb_font_color] = #DAF8FE
+settings[style_footer_top_border_color] = #326E9B
+settings[style_footer_bgcolor] = #292C30
+settings[style_footer_font_color] = #ffffff
+
+
+variables[admin_theme] = 'seven'
+
+; Information added by drupal.org packaging script on 2013-03-06
+project = "pika"
+datestamp = "1352325857"
+
+
+

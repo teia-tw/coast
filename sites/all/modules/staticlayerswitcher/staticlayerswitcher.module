@@ -1,0 +1,8 @@
+<?php
+
+function staticlayerswitcher_init() {
+  drupal_add_js(drupal_get_path('module', 'staticlayerswitcher') . '/StaticLayerSwitcher.js', array(
+    'weight' => 999,
+  ));
+}
+

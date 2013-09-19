@@ -1,0 +1,14 @@
+<?php
+/**
+ * @file
+ * Code for the coast_frontpage_animation feature.
+ */
+
+include_once 'coast_frontpage_animation.features.inc';
+
+function coast_frontpage_animation_init() {
+  drupal_add_js(drupal_get_path('module', 'coast_frontpage_animation') . '/animation.js', array(
+    'weight' => 999,
+  ));
+}
+

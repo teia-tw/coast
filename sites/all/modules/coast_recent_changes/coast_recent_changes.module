@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the 海岸守護網最新內容 feature.
+ */
+
+include_once 'coast_recent_changes.features.inc';

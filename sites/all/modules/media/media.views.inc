@@ -79,13 +79,7 @@ function template_preprocess_media_views_view_media_browser(&$vars) {
     // Add url/preview to the file object.
     media_browser_build_media_item($file);
     $vars['rows'][$index] = $file;
-    $vars['rows'][$index]->preview = l($file->preview, 'media/browser', array(
-      'html' => TRUE,
-      'attributes' => array(
-        'data-fid' => $row->fid,
-      ),
-      'query' => array('render' => 'media-popup', 'fid' => $row->fid))
-    );
+    $vars['rows'][$index]->preview = $file->preview;
   }
 
   // Add the files to JS so that they are accessible inside the browser.

@@ -1,0 +1,6 @@
+name = Coast
+description = 「海岸守護網」佈景主題。
+core = 7.x
+
+stylesheets[all][] = style/style.css
+scripts[] = ie7.js

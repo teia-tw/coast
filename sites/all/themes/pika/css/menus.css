@@ -1,0 +1,46 @@
+
+
+#main-menu > li > a i {background-color:#333333;}
+#navigation {bottom:0px; right:0px; position:relative;  clear:both;}
+#navigation #main-menu > ul ul li, #navigation .selector{/*background:#326E9B;*/}
+
+#navigation .nolink { padding: 0 15px !important; cursor:pointer;}
+  /*display dropdown nav*/
+  #navigation .selector {display: inline-block;}
+#navigation #main-menu > ul > li {padding-top:0px; border-left:1px solid #F4F4F4; height:44px; line-height:40px; font-size: 18px;}
+#navigation #main-menu > ul > li > a, #navigation a {line-height:40px; padding-top:0px; }
+#navigation #main-menu > ul > li > a.active { height:44px;line-height:33px;}
+#navigation #main-menu > ul > li:hover > ul,#main-menu > ul li.sfHover > ul{top:34px; }
+
+/*#navigation #main-menu > ul > li > a.active-trail, #navigation a.active{ border-top: 4px solid #326E9B;  color:#326E9B; line-height:32px; }*/
+#navigation #main-menu > ul > li > a:hover { border-top: 4px solid #1aa1da; line-height: 32px; }
+#main-menu > ul li:hover ul,#main-menu > ul li.sfHover ul{left:0;top:30px;z-index:99 }
+#main-menu > ul,#main-menu > ul *{list-style:none outside none;margin:0;padding:0}
+#main-menu > ul{line-height:1}
+#main-menu > ul ul{position:absolute;top:-999em;width:180px}
+#main-menu > ul ul li{width:100%}
+#main-menu > ul li:hover{visibility:inherit}
+#main-menu > ul a{display:block;position:relative}
+
+#main-menu > ul li:hover li ul,#main-menu > ul li.sfHover li ul{top:-999em}
+#main-menu > ul li li:hover ul,#main-menu > ul li li.sfHover ul{left:180px;top:1px}
+
+
+#navigation #main-menu > ul li li:hover ul,#main-menu > ul li li.sfHover ul,#main-menu > ul li li:hover ul,#main-menu > ul li li.sfHover ul{left:200px;top:-10px}
+#navigation #main-menu > ul a{height:25px;line-height:25px;text-decoration:none;padding:0 15px;z-index:9999;}
+
+
+#navigation #main-menu > ul ul{left:0;padding-top:10px;position:absolute;top:-999em;width:200px;z-index:9999}
+#navigation #main-menu > ul ul li{border-bottom:1px solid rgba(0,0,0,0.1);z-index:9999;}
+#navigation #main-menu > ul ul li a:hover{border-bottom:1px solid rgba(0,0,0,0.1);z-index:9999;}
+#navigation #main-menu > ul ul li:first-child{border-top:0 none}
+#navigation #main-menu > ul ul li:last-child{border-bottom:0 none}
+#navigation #main-menu > ul ul a{border:0 none;display:block;height:auto;text-shadow:none;margin:0;padding:5px 10px; font-size:16px; font-weight:400;}
+#navigation #main-menu > ul ul li > a:hover{border-bottom:0px;}
+
+#main-menu > ul li,#navigation #main-menu > ul li{float:left;position:relative}
+
+#navigation .selector {
+  display: none;
+  position:relative;
+}

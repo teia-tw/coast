@@ -127,7 +127,7 @@ function media_variable_default($name = NULL) {
       // Types which can be selected when embedding media vs wysiwyg.
       'wysiwyg_allowed_types' => array('audio', 'image', 'video'),
       // Attributes which can be modified via the wysiwyg and persist.
-      'wysiwyg_allowed_attributes' => array('height', 'width', 'hspace', 'vspace', 'border', 'align', 'style', 'alt', 'title', 'class', 'id'),
+      'wysiwyg_allowed_attributes' => array('height', 'width', 'hspace', 'vspace', 'border', 'align', 'style', 'alt', 'title', 'class', 'id', 'usemap'),
       // WYSIWYG browser plugins in WYSIWYG config page.
       'wysiwyg_browser_plugins' => array(),
 

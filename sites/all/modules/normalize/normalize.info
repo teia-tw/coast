@@ -1,0 +1,13 @@
+name = Normalize
+description = "Normalizes browser default styles with normalize.css."
+
+core = 7.x
+
+configure = admin/config/development/normalize
+
+; Information added by drupal.org packaging script on 2013-02-02
+version = "7.x-1.6"
+core = "7.x"
+project = "normalize"
+datestamp = "1359811747"
+

@@ -69,7 +69,9 @@ function _media_filter_add_file_usage_from_fields($entity_type, $entity) {
         $deprecate = $old_file_count - $entity_files[$fid];
         // Now deprecate this usage
         $file = file_load($fid);
-        file_usage_delete($file, 'media', $entity_type, $entity_id, $deprecate);
+        if ($file) {
+          file_usage_delete($file, 'media', $entity_type, $entity_id, $deprecate);
+        }
         // Usage is deleted, nothing more to do with this file
         unset($entity_files[$fid]);
       }
@@ -204,7 +206,6 @@ function media_field_attach_delete_revision($entity_type, $entity) {
  * @TODO check for security probably pass text through filter_xss
  */
 function media_filter($text) {
-  $text = ' ' . $text . ' ';
   $text = preg_replace_callback(MEDIA_TOKEN_REGEX, 'media_token_to_markup', $text);
   return $text;
 }
@@ -375,15 +376,12 @@ function media_token_to_markup($match, $wysiwyg = FALSE) {
       // Add surrounding divs to group them together.
       // We dont want divs when there are no additional fields to allow files
       // to display inline with text, without breaking p tags.
-      $attributes = array(
-        'class' => array(
-          'media',
-          'media-element-container',
-          'media-' . $element['content']['file']['#view_mode'],
-        ),
+      $element['content']['#type'] = 'container';
+      $element['content']['#attributes']['class'] = array(
+        'media',
+        'media-element-container',
+        'media-' . $element['content']['file']['#view_mode']
       );
-      $element['content']['#prefix'] = '<div ' . drupal_attributes($attributes) . '>';
-      $element['content']['#suffix'] = '</div>';
     }
   }
   drupal_alter('media_token_to_markup', $element, $tag_info, $settings);
@@ -552,10 +550,7 @@ function media_format_form($form, $form_state, $file) {
   $form['#attached']['library'][] = array('system', 'form');
   $form['#attached']['js'][] = drupal_get_path('module', 'media') . '/js/media.format_form.js';
 
-  $form['heading'] = array(
-    '#type' => 'markup',
-    '#prefix' => '<h1 class="title">',
-    '#suffix' => '</h1>',
+  $form['title'] = array(
     '#markup' => t('Embedding %filename', array('%filename' => $file->filename)),
   );
 
@@ -575,23 +570,29 @@ function media_format_form($form, $form_state, $file) {
 
   $form['options']['format'] = array(
     '#type' => 'select',
-    '#title' => t('Current format is'),
+    '#title' => t('Display as'),
     '#options' => $options,
     '#default_value' => $default_view_mode,
+    '#description' => t('Choose the type of display you would like for this
+      file. Please be aware that files may display differently than they do when
+      they are insterted into an editor.')
   );
 
   if ($file->type === 'image') {
     $form['options']['alt'] = array(
       '#type' => 'textfield',
       '#title' => t('Alternate text'),
-      '#description' => t('This text will be used by screen readers, search engines, or when the image cannot be loaded.'),
+      '#description' => t('Alternative text is used by screen readers, search
+        engines, and when the image cannot be loaded. By adding alt text you
+        improve accesibility and search engine optimization.'),
       '#default_value' => isset($file->field_file_image_alt_text['und'][0]['safe_value']) ? $file->field_file_image_alt_text['und'][0]['safe_value'] : '',
     );
-
     $form['options']['title'] = array(
       '#type' => 'textfield',
-      '#title' => t('Title'),
-      '#description' => t('The title is used as a tool tip when the user hovers the mouse over the image.'),
+      '#title' => t('Title text'),
+      '#description' => t('Title text is used in the tool tip when a user hovers
+        their mouse over the image. Adding title text makes it easier to
+        understand the context of an image and improves usability.'),
       '#default_value' => isset($file->field_file_image_title_text['und'][0]['safe_value']) ? $file->field_file_image_title_text['und'][0]['safe_value'] : '',
     );
   }

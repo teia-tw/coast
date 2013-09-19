@@ -1,0 +1,38 @@
+input.olButton {
+  margin-left: 8px;
+}
+
+.dataLayersDiv ul {
+  padding-left: 0px;
+}
+
+.dataLayersDiv li {
+  list-style: none;
+  display: block;
+}
+
+.dataLayersDiv label {
+  line-height: 24px;
+}
+
+.layerLevel1 > li > label {
+  background: none repeat scroll 0 0 #559cd4;
+  display: block;
+  color: #fff;
+  padding-left: 4px;
+}
+
+.layerLevel2 label {
+  padding-left: 24px;
+}
+
+#layerSwitcherBox {
+  position: absolute;
+  margin-left: 710px;
+  width: 230px;
+  height: 580px;
+  overflow-y: scroll;
+  background: #ccc;
+  opacity: 0.75;
+  z-index: 599;
+}

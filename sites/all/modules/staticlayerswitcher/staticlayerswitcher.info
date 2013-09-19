@@ -1,0 +1,7 @@
+name = Static Layer Switcher
+description = 海岸守護網圖層控制項
+core = 7.x
+package = 海岸守護網
+project = staticlayerswitcher
+
+dependencies[] = openlayers
