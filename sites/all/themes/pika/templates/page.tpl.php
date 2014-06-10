@@ -24,7 +24,6 @@
       </div>
       <!-- end .features top -->
       <div id="sponsor">
-        <div id="logo-standard-chartered" class="right"><img alt="渣打銀行" style="height: 40px; margin-top: 10px" src="/sites/all/themes/pika/images/logo/standard_chartered.jpg"></div>
         <div id="logo-teia" class="right"><img src="/sites/all/themes/pika/images/logo/teia.png" style="height: 42px; margin-right: 13px; margin-top: 7px" alt="台灣環境資訊協會"></div>
       </div>
       <nav id="navigation" role="navigation">
