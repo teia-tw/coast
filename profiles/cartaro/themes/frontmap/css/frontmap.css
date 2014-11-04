@@ -6,3 +6,8 @@ body.front a.feed-icon {
 #main {
   margin-bottom: 20px;
 }
+
+.event-sidebar-content {
+    height: 494px;
+    overflow: auto;
+}
