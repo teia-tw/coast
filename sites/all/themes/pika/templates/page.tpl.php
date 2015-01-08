@@ -1,8 +1,8 @@
 <div id="layout-mode" class="<?php print theme_get_setting('layout_mode', 'pika');?> " >
   <div id="header" class="container">
-    <div class="row"> 
+    <div class="row">
       <!-- features top -->
-      <div id="logo" class="four columns logo"> 
+      <div id="logo" class="four columns logo">
         <!-- logo & slogan -->
         <?php if ($logo): ?>
         <a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>"><img height="70" src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" gumby-retina /></a>
@@ -24,11 +24,11 @@
       </div>
       <!-- end .features top -->
       <div id="sponsor">
-        <div id="logo-teia" class="right"><img src="/sites/all/themes/pika/images/logo/teia.png" style="height: 42px; margin-right: 13px; margin-top: 7px" alt="台灣環境資訊協會"></div>
+        <div class="submit-incident"><a href="http://alert.e-info.org.tw/reports/submit">通報事件</a></div>
       </div>
       <nav id="navigation" role="navigation">
         <div id="main-menu">
-          <?php 
+          <?php
             if (module_exists('i18n_menu')) {
               $main_menu_tree = i18n_menu_translated_tree(variable_get('menu_main_links_source', 'main-menu'));
             } else {
@@ -55,7 +55,7 @@
   <?php print $messages; ?>
   <?php if(!drupal_is_front_page()): ?>
   <div id="pre-content">
-    <div class="row"> 
+    <div class="row">
       <!--start breadcrumb -->
       <?php if (theme_get_setting('breadcrumb_title', 'pika') == 1): ?>
       <div id="breadcrumb"><?php print $breadcrumb; ?></div>
