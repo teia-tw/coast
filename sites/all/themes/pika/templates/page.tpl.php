@@ -23,9 +23,6 @@
         </ul>
       </div>
       <!-- end .features top -->
-      <div id="sponsor">
-        <div class="submit-incident"><a href="http://alert.e-info.org.tw/reports/submit">通報事件</a></div>
-      </div>
       <nav id="navigation" role="navigation">
         <div id="main-menu">
           <?php
