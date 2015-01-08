@@ -3094,7 +3094,7 @@ font-family:微軟正黑體,新細明體!important;}
 div.submit-incident {
   margin: 0px;
   position: absolute;
-  top: 0px;
+  top: 28px;
   right: 0px;
   width: 300px;
 }
@@ -3110,5 +3110,4 @@ div.submit-incident a, div.submit-incident a:hover {
   font-weight: bold;
   font-size: 14px;
   text-decoration: none;
-  float: right;
 }
