@@ -5,9 +5,9 @@ dependencies[] = geoserver
 
 configure = admin/structure/geoserver
 
-; Information added by drupal.org packaging script on 2012-10-18
-version = "7.x-1.0-beta2"
+; Information added by Drupal.org packaging script on 2014-01-20
+version = "7.x-1.3"
 core = "7.x"
 project = "geoserver"
-datestamp = "1350570414"
+datestamp = "1390209806"
 

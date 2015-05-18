@@ -7,3 +7,6 @@ Creation and delivery of spatial data will be fast and intuitiv.
 PostGIS + GeoServer + OpenLayers + Drupal = Cartaro
 
 Cartaro is the foundation for websites that focus on spatial data.
+
+Visit cartaro.org for details.
+

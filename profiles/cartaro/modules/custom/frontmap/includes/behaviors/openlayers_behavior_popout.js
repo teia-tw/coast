@@ -15,11 +15,15 @@
  */
 Drupal.theme.prototype.openlayersPopout = function(feature) {
   var output = '';
+  function escapeHtml(text){
+    return jQuery("<div>").text(text).html();
+  }
 
   if (feature.attributes.name) {
-    output += '<div class="openlayers-popout openlayers-tooltip-name">' + feature.attributes.name + '</div>';
+    output += '<div class="openlayers-popout openlayers-tooltip-name">' + escapeHtml(feature.attributes.name) + '</div>';
   }
   if (feature.attributes.description) {
+    // No escaping here because contents are HTML.
     output += '<div class="openlayers-popout openlayers-tooltip-description">' + feature.attributes.description + '</div>';
   }
 

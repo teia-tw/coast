@@ -5,20 +5,6 @@
  */
 
 /**
- * Ctools plugin definition.
- */
-$plugin = array(
-  'title' => t('Fullscreen'),
-  'description' => t('Provides a button that expands maps to the size of the page.'),
-  'type' => 'map',
-  'behavior' => array(
-    'file' => 'openlayers_behavior_fullscreen.inc',
-    'class' => 'openlayers_behavior_fullscreen',
-    'parent' => 'openlayers_behavior',
-  ),
-);
-
-/**
  * Fullscreen Behavior
  */
 class openlayers_behavior_fullscreen extends openlayers_behavior {

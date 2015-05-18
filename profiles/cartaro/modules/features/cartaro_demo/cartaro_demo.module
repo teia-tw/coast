@@ -24,7 +24,7 @@ Next steps:
 - Create GeoServer styles to customize the rendering of GeoServer layers.
 - Add GeoServer layers to your OpenLayers maps.
 
-See below for a list of detailed documentations.');
+Detailed documentation: http://cartaro.org/documentation');
 
   $capitals = dirname(__FILE__) . DIRECTORY_SEPARATOR  . 'capitals.csv';
   if (($handle = fopen($capitals, 'r')) !== FALSE) {
@@ -35,16 +35,6 @@ See below for a list of detailed documentations.');
   }
 
   $blocks = array(
-    array(
-      'delta' => 'menu-documentation',
-      'module' => 'menu',
-      'region' => 'footer_fourthcolumn',
-    ),
-    'login' => array(
-      'delta' => 'login',
-      'module' => 'user',
-      'region' => 'footer_firstcolumn',
-    ),
     array(
       'module' => 'block',
       'region' => 'footer',
@@ -67,6 +57,10 @@ See below for a list of detailed documentations.');
       'status' => 1,
     ));
   }
+
+  $theme_frontmap_settings = variable_get('theme_frontmap_settings', array());
+  $theme_frontmap_settings['frontmap'] = 'frontmap';
+  variable_set('theme_frontmap_settings', $theme_frontmap_settings);
 }
 
 function cartaro_demo_save_node($title, $body, $location = FALSE) {
@@ -81,6 +75,7 @@ function cartaro_demo_save_node($title, $body, $location = FALSE) {
   $node->promote = 1;
 
   if ($location) {
+    $node->field_location['und'][0]['feeds'] = TRUE; // Disables reprojection.
     $node->field_location['und'][0]['wkt'] = $location;
     $node->type = 'capital';
   }

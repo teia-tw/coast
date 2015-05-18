@@ -29,38 +29,26 @@ Drupal.behaviors.openlayers_behavior_ole = {
     }
 
     // Callback function that handles changes of map features.
-    function openlayers_behavior_ole_update(features) {
+    function openlayers_behavior_ole_update(event) {
 
       // limit number of features to field cardinality
-      while (features.type == 'featureadded' && behavior.feature_limit &&
-        (behavior.feature_limit < features.object.features.length)) {
-        features.feature.layer.removeFeatures(features.object.features.shift(), {silent: false});
-      }
-
-      var features_copy = features.object.clone();
-      
-      // Transform features to source projection.
-      for (var i in features_copy.features) {
-        features_copy.features[i].geometry.transform(
-          features.object.map.projection,
-          sourceProjection
-        );
+      while (event.type == 'featureadded' && behavior.feature_limit &&
+        (behavior.feature_limit < event.object.features.length)) {
+        event.feature.layer.removeFeatures(event.object.features.shift(), {silent: false});
       }
 
       // Write features as WKT to form field.
-      element.val(wktFormat.write(features_copy.features));
+      element.val(wktFormat.write(event.object.features)).trigger('change');
     }
 
     var data = $(context).data('openlayers'),
         wktFormat = new OpenLayers.Format.WKT(),
-        element, sourceProjection, behavior, processing_controls, editing_controls, other_controls;
-
+        feature_types = [],
+        element, behavior, processing_controls, editing_controls, other_controls;
     if (data) {
 
       behavior = data.map.behaviors['openlayers_behavior_ole'];
       element = $('#' + behavior.element_id);
-      sourceProjection = new OpenLayers.Projection('EPSG:'+behavior.srid);
-
 
       // Ensure the ModifyFeature control is present
       if (!('ModifyFeature' in behavior.editing_controls) || 
@@ -84,6 +72,10 @@ Drupal.behaviors.openlayers_behavior_ole = {
       editing_controls = openlayers_behavior_ole_control_group(behavior.editing_controls);
       other_controls = openlayers_behavior_ole_control_group(behavior.other_controls);
 
+      for(var i in data.map.behaviors['openlayers_behavior_ole'].feature_types) {
+        feature_types.push(data.map.behaviors['openlayers_behavior_ole'].feature_types[i]);
+      }
+
       // Apply Drupal's styles to form fields in order to make up for the CSS-reset that makes ordinary form fields indistinguishable from text
       OpenLayers.Editor.Control.Dialog.prototype.inputTextClass = "form-text";
       OpenLayers.Editor.Control.Dialog.prototype.buttonClass = "form-submit";
@@ -91,30 +83,19 @@ Drupal.behaviors.openlayers_behavior_ole = {
       var editor = new OpenLayers.Editor(data.openlayers, {
         showStatus: function(message) {console.log(message);},
         activeControls: other_controls.concat(processing_controls).concat(editing_controls),
-        featureTypes: data.map.behaviors['openlayers_behavior_ole'].feature_types,
+        featureTypes: feature_types,
         featureLimit: data.map.behaviors['openlayers_behavior_ole'].feature_limit,
         oleUrl: Drupal.settings.basePath + '?q=admin/structure/openlayers/editor/callbacks/'
       });
 
       editor.editLayer.events.register('featureadded', this, openlayers_behavior_ole_update);
+      editor.editLayer.events.register('featuremodified', this, openlayers_behavior_ole_update);
       editor.editLayer.events.register('afterfeaturemodified', this, openlayers_behavior_ole_update);
       editor.editLayer.events.register('featureremoved', this, openlayers_behavior_ole_update);
       
       var features = wktFormat.read(element.text());
       if (features) {
-        if (features.constructor == Array) {
-          for (var i in features) {
-            features[i].geometry = features[i].geometry.transform(
-              sourceProjection,
-              data.openlayers.projection
-            );
-          }
-        }
-        else {
-          features.geometry = features.geometry.transform(
-            sourceProjection,
-            data.openlayers.projection
-          );
+        if (features.constructor !== Array) {
           features = [features];
         }
         editor.loadFeatures(features);

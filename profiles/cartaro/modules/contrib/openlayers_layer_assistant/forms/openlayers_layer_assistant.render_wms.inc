@@ -52,7 +52,8 @@ class openlayer_layer_assistant_render_wms extends openlayer_layer_assistant_ren
       '#ajax' => array(
         'path' => 'admin/structure/openlayers/layers/assistant/render/callback/fill_form',
       ),
-      '#disabled' => (array_key_exists('layer_name', $form) && count($form['layer_name']['#options'])===0)
+      // Disable button until user selected a layer
+      '#disabled' => !array_key_exists('layer_name', $form) || count($form['layer_name']['#options'])===0
     );
     
     $this->mergeBasicFields($form);
@@ -62,11 +63,15 @@ class openlayer_layer_assistant_render_wms extends openlayer_layer_assistant_ren
     // Hide fields that can be set automatically by reading GetCapabilities document and provide easier to understand hints
     $specificFieldsKey = get_class($this->layerType);
     $form[$specificFieldsKey]['base_url']['#type'] = 'hidden';
-    $form[$specificFieldsKey]['params']['isBaseLayer']['#default_value'] = 'false';
-    $form[$specificFieldsKey]['params']['isBaseLayer']['#description'] = t('Check to make layer fully opaque or uncheck to use layer as partially transparent overlay over other layers.');
+    $form['basics']['isBaseLayer']['#default_value'] = 'false';
+    
+    // Hide projection list because all available projection get selected automatically to avoid distracting the user.
+    $form['basics']['projection']['#prefix'] = '<div style="display:none">';
+    $form['basics']['projection']['#suffix'] = '</div>';
+    
     $form[$specificFieldsKey]['params']['buffer']['#type'] = 'hidden';
     $form[$specificFieldsKey]['params']['ratio']['#type'] = 'hidden';
-    $form[$specificFieldsKey]['options']['srs']['#description'] = t('Flattening operation to get the world to display on a screen. Choose EPSG:900913 if the layer should be used in combination with map providers such as Google, Bing or MapQuest.');
+    $form['basics']['projection']['#description'] = t('Flattening operation to get the world to display on a screen. Choose EPSG:900913 if the layer should be used in combination with map providers such as Google, Bing or MapQuest.');
     $form[$specificFieldsKey]['options']['TRANSPARENT']['#type'] = 'hidden';
     $form[$specificFieldsKey]['options']['exceptions']['#type'] = 'hidden';
     $form[$specificFieldsKey]['options']['layers']['#type'] = 'hidden';
@@ -157,7 +162,7 @@ class openlayer_layer_assistant_render_wms extends openlayer_layer_assistant_ren
    * @return array Drupal form field
    */
   private function getLayerSelectBox($getCapabilitiesXPath){
-    $layerNames = $getCapabilitiesXPath->query('//wms:Layer[wms:CRS/text()="EPSG:4326" or wms:CRS/text()="EPSG:900913"] | //Layer[SRS/text()="EPSG:4326" or SRS/text()="EPSG:900913"]');
+    $layerNames = $getCapabilitiesXPath->query('//wms:Layer[wms:CRS['.$this->getXPathCrsPredicate().']] | //Layer[SRS['.$this->getXPathCrsPredicate().']]');
     $layerNamesArray = array();
     foreach($layerNames as $layerName) {
       $layerNameKey = $getCapabilitiesXPath->evaluate('string((wms:Name | Name))', $layerName);
@@ -173,6 +178,18 @@ class openlayer_layer_assistant_render_wms extends openlayer_layer_assistant_ren
   }
   
   /**
+   * @return string Filter to limit text content to any of the supported projections.
+   */
+  private function getXPathCrsPredicate(){
+    $conditions = array();
+    foreach(openlayers_get_all_projections() as $projection){
+      $conditions[] = 'text()="'.$projection->identifier.'"';
+    }
+    return implode(' or ', $conditions);
+  }
+
+
+  /**
    * Adjusts form default values to match data of GetCapabilities request.
    * @param DomXPath $getCapabilitiesXPath Queries on GetCapabilities document
    * @param String $selectedLayer
@@ -181,8 +198,12 @@ class openlayer_layer_assistant_render_wms extends openlayer_layer_assistant_ren
   private function fillForm(DomXPath $getCapabilitiesXPath, $selectedLayer, array &$form){
     $specificFieldsKey = get_class($this->layerType);
     
-    // Each WMS service must define the base URI for request generation
-    $form[$specificFieldsKey]['base_url']['#default_value'] = $getCapabilitiesXPath->evaluate('string(/wms:WMS_Capabilities/wms:Service/wms:OnlineResource/@xlink:href | /WMT_MS_Capabilities/Service/OnlineResource/@xlink:href)');
+    // Each WMS service must define the base URI for request generation.
+    // In practice only a few servers send correct URI so the the source of the GetCapabilities document is used instead.
+    //$form[$specificFieldsKey]['base_url']['#default_value'] = $getCapabilitiesXPath->evaluate('string(/wms:WMS_Capabilities/wms:Service/wms:OnlineResource/@xlink:href | /WMT_MS_Capabilities/Service/OnlineResource/@xlink:href)');
+    $getCapabilitiesURI = $getCapabilitiesXPath->evaluate('/*')->item(0)->ownerDocument->documentURI;
+    $base_url = mb_eregi_replace('\?.*$', '', $getCapabilitiesURI).'?';
+    $form[$specificFieldsKey]['base_url']['#default_value'] = $base_url;
     
     $selectedLayerNode = $getCapabilitiesXPath->query('//wms:Layer[wms:Name="'.$selectedLayer.'"] | //Layer[Name="'.$selectedLayer.'"]')->item(0);
     
@@ -199,7 +220,7 @@ class openlayer_layer_assistant_render_wms extends openlayer_layer_assistant_ren
     $description = $getCapabilitiesXPath->evaluate('string(wms:Abstract | Abstract)', $selectedLayerNode);
     $form['basics']['description']['#default_value'] = $description;
     
-    $supportedCRS = $getCapabilitiesXPath->query('wms:CRS[text()="EPSG:4326" or text()="EPSG:900913"]/text() | SRS[text()="EPSG:4326" or text()="EPSG:900913"]/text()', $selectedLayerNode);
+    $supportedCRS = $getCapabilitiesXPath->query('wms:CRS['.$this->getXPathCrsPredicate().']/text() | SRS['.$this->getXPathCrsPredicate().']/text()', $selectedLayerNode);
     $crsOptionsList = array();
     // Put projections into list but place EPSG:900913 first because it is probably the most used
     foreach($supportedCRS as $crs){
@@ -210,9 +231,12 @@ class openlayer_layer_assistant_render_wms extends openlayer_layer_assistant_ren
       }
     }
     $crsOptions = array_combine($crsOptionsList, $crsOptionsList);
-    $crsSelectBox = &$form[$specificFieldsKey]['options']['srs'];
-    $crsSelectBox['#name'] = $specificFieldsKey.'[options][srs]';
+    $crsSelectBox = &$form['basics']['projection'];
+    // Drupal ignores #multiple flag if not moved into #attributes
+    $crsSelectBox['#attributes']['multiple'] = $crsSelectBox['#multiple'];
+    $crsSelectBox['#name'] = 'projection[]';
     $crsSelectBox['#options'] = $crsOptions;
+    $crsSelectBox['#value'] = array_values($crsOptions);
     
     $isBaseLayerRaw = $getCapabilitiesXPath->evaluate('string(@opaque)', $selectedLayerNode);
     if($isBaseLayerRaw===FALSE){
@@ -255,7 +279,7 @@ class openlayer_layer_assistant_render_wms extends openlayer_layer_assistant_ren
         $ajaxCommands = array(
           ajax_command_html('#load_layers_replacement', drupal_render($select)),
         );
-        if(count($form['layer_name']['#options'])===0){
+        if(count($select['#options'])===0){
           drupal_set_message(t('The server does not offer any compatible layers currently.'), 'error');
           $ajaxCommands[] = ajax_command_invoke('#edit-fill-form', 'attr', array('disabled', 'disabled'));
           $ajaxCommands[] = ajax_command_invoke('#edit-fill-form', 'addClass', array('form-button-disabled'));
@@ -280,9 +304,9 @@ class openlayer_layer_assistant_render_wms extends openlayer_layer_assistant_ren
         $title = $form['basics']['title']['#default_value'];
         $description = $form['basics']['description']['#default_value'];
         
-        $crsSelectBox = $form[$specificFieldsKey]['options']['srs'];
+        $crsSelectBox = $form['basics']['projection'];
         
-        $isBaseLayer = $form[$specificFieldsKey]['params']['isBaseLayer'];
+        $isBaseLayer = $form['basics']['isBaseLayer'];
         
         $stylesSelectBox = &$form[$specificFieldsKey]['options']['styles'];
         
@@ -292,7 +316,7 @@ class openlayer_layer_assistant_render_wms extends openlayer_layer_assistant_ren
           
           $this->getSetFieldValueCommand(array($specificFieldsKey, 'base_url'), $form[$specificFieldsKey]['base_url']['#default_value']),
           ajax_command_invoke('#edit-openlayers-layer-type-wms-params-isbaselayer', 'attr', array('checked', $isBaseLayer)),
-          ajax_command_html('.form-item-openlayers-layer-type-wms-options-srs', drupal_render($crsSelectBox)),
+          ajax_command_html('.form-item-projection', drupal_render($crsSelectBox)),
           $this->getSetFieldValueCommand(array($specificFieldsKey, 'options', 'TRANSPARENT'), !$isBaseLayer),
           $this->getSetFieldValueCommand(array($specificFieldsKey, 'options', 'exceptions'), $exceptions),
           ajax_command_html('.form-item-openlayers-layer-type-wms-options-styles', drupal_render($stylesSelectBox)),
@@ -304,11 +328,12 @@ class openlayer_layer_assistant_render_wms extends openlayer_layer_assistant_ren
     $specificFieldsKey = get_class($this->layerType);
     
     // Assume all layers are transparent that are not base layers
-    $isBaseLayer = $this->getFieldValue($form_state['input'], array($specificFieldsKey, 'params', 'isBaseLayer'));
-    $form_state['input'][$specificFieldsKey]['options']['TRANSPARENT'] = !$isBaseLayer;
+    $isBaseLayer = $this->getFieldValue($form_state['input'], array('isBaseLayer'));
+    $form_state['input']['isBaseLayer'] = ($isBaseLayer===true || $isBaseLayer==='1');
+    $form_state['input'][$specificFieldsKey]['options']['TRANSPARENT'] = !$form_state['input']['isBaseLayer'];
     
     // Set the selected layer in the field where the OpenLayers module expects it
     $layers = $this->getFieldValue($form_state['input'], array('layer_name'));
-    $form_state['input'][$specificFieldsKey]['options']['layers'] = $layers;
+    $form_state['input'][$specificFieldsKey]['options']['layers'] = explode("\r\n", $layers);
   }
 }

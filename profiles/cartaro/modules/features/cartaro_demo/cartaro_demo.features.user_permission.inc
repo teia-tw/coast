@@ -14,7 +14,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['access administration pages'] = array(
     'name' => 'access administration pages',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'system',
   );
@@ -23,8 +23,8 @@ function cartaro_demo_user_default_permissions() {
   $permissions['access content'] = array(
     'name' => 'access content',
     'roles' => array(
-      0 => 'anonymous user',
-      1 => 'authenticated user',
+      'anonymous user' => 'anonymous user',
+      'authenticated user' => 'authenticated user',
     ),
     'module' => 'node',
   );
@@ -33,7 +33,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['access content overview'] = array(
     'name' => 'access content overview',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'node',
   );
@@ -42,7 +42,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['access dashboard'] = array(
     'name' => 'access dashboard',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'dashboard',
   );
@@ -51,7 +51,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['access toolbar'] = array(
     'name' => 'access toolbar',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'toolbar',
   );
@@ -60,7 +60,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['administer blocks'] = array(
     'name' => 'administer blocks',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'block',
   );
@@ -69,7 +69,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['administer content types'] = array(
     'name' => 'administer content types',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'node',
   );
@@ -78,7 +78,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['administer feeds'] = array(
     'name' => 'administer feeds',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'feeds',
   );
@@ -87,7 +87,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['administer geoserver'] = array(
     'name' => 'administer geoserver',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'geoserver',
   );
@@ -96,7 +96,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['administer menu'] = array(
     'name' => 'administer menu',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'menu',
   );
@@ -105,7 +105,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['administer nodes'] = array(
     'name' => 'administer nodes',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'node',
   );
@@ -114,7 +114,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['administer openlayers'] = array(
     'name' => 'administer openlayers',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'openlayers_ui',
   );
@@ -123,7 +123,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['bypass node access'] = array(
     'name' => 'bypass node access',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'node',
   );
@@ -132,7 +132,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['create url aliases'] = array(
     'name' => 'create url aliases',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'path',
   );
@@ -141,7 +141,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['view any capital content'] = array(
     'name' => 'view any capital content',
     'roles' => array(
-      0 => 'anonymous user',
+      'anonymous user' => 'anonymous user',
     ),
     'module' => 'nodetype_access',
   );
@@ -150,7 +150,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['view any page content'] = array(
     'name' => 'view any page content',
     'roles' => array(
-      0 => 'anonymous user',
+      'anonymous user' => 'anonymous user',
     ),
     'module' => 'nodetype_access',
   );
@@ -159,7 +159,7 @@ function cartaro_demo_user_default_permissions() {
   $permissions['view the administration theme'] = array(
     'name' => 'view the administration theme',
     'roles' => array(
-      0 => 'demo',
+      'demo' => 'demo',
     ),
     'module' => 'system',
   );

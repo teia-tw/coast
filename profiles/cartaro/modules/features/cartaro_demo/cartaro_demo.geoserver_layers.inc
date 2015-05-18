@@ -31,7 +31,7 @@ function cartaro_demo_geoserver_layers() {
       'srid' => '4326',
       'sql_name' => 'geoserver_capitals_view',
       'sql' => 'DROP VIEW IF EXISTS geoserver_capitals_view;
-CREATE VIEW geoserver_capitals_view AS SELECT node.nid as id, node.title, field_data_field_location.delta, field_location_geometry, body_value, body_summary, body_format
+CREATE VIEW geoserver_capitals_view AS SELECT node.nid as id, node.title as name, field_data_field_location.delta, field_location_geometry, body_value, body_summary as description, body_format
 FROM node
 LEFT JOIN field_data_field_location ON node.nid = field_data_field_location.entity_id
 LEFT JOIN field_data_body ON node.nid = field_data_body.entity_id

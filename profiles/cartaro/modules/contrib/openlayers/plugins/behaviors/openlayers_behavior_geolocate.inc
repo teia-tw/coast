@@ -5,20 +5,7 @@
  */
 
 /**
- * Ctools plugin definition.
- */
-$plugin = array(
-  'title' => t('Geolocate Client'),
-  'description' => t('Provides the geolcoation control that simply zooms to users location on map load.  Based on HTML5 geolocation, so this will not be supported in all browsers.'),
-  'behavior' => array(
-    'file' => 'openlayers_behavior_geolocate.inc',
-    'class' => 'openlayers_behavior_geolocate',
-    'parent' => 'openlayers_behavior',
-  ),
-);
-
-/**
- * Zoom Panel Behavior
+ * Geolocate Behavior
  * http://dev.openlayers.org/docs/files/OpenLayers/Control/Geolocate-js.html
  */
 class openlayers_behavior_geolocate extends openlayers_behavior {
@@ -81,6 +68,9 @@ class openlayers_behavior_geolocate extends openlayers_behavior {
    * Render.
    */
   function render(&$map) {
+    //make sure that $option['bind'] is a true boolean, and not a string '0'.
+    $this->options['bind'] = !!$this->options['bind'];
+
     drupal_add_js(drupal_get_path('module', 'openlayers') .
       '/plugins/behaviors/openlayers_behavior_geolocate.js');
     return $this->options;

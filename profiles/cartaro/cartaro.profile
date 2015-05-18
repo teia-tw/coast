@@ -18,8 +18,51 @@ function cartaro_init() {
   if (empty($conf['theme_settings'])) {
     $conf['theme_settings'] = array(
       'default_logo' => 0,
-      'logo_path' =>  empty($conf['site_name']) ? 'profiles/cartaro/logo_dark.png' : 'profiles/cartaro/logo_light.png',
+      'logo_path' => 'profiles/cartaro/logo.png',
     );
+  }
+}
+
+/**
+ * Implements hook_update_status_alter().
+ *
+ * Move Cartaro to the 'Manual updates' table.
+ */
+function cartaro_update_status_alter(&$projects) {
+  if (isset($projects['cartaro'])) {
+    $projects['cartaro']['project_type'] = 'core';
+  }
+}
+
+/**
+ * Implements hook_install_tasks().
+ */
+function cartaro_install_tasks($install_state){
+  return array(
+    'cartaro_install_task_geoserver_relogin' => array(
+      'display' => FALSE,
+      'type' => 'normal',
+      'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
+      'function' => 'cartaro_install_task_geoserver_relogin',
+    )
+  );
+}
+
+/**
+ * Log out from GeoServer and back in.
+ * This is necessary after Drupal stored the admin user in the database so that
+ * GeoServer can refresh its roles.
+ * @param array $install_state
+ */
+function cartaro_install_task_geoserver_relogin($install_state){
+  geoserver_user_logout((object)array('uid' => 0));
+  geoserver_user_logout((object)array('uid' => 1));
+  if (!drupal_is_cli()) {
+    global $user;
+    $geoserver_login_error = geoserver_login($user->name, $_POST['account']['pass']['pass1']);
+    if(is_string($geoserver_login_error)){
+      drupal_set_message(st('Failed to re-authenticate with GeoServer after completing Drupal setup.'), 'warning');
+    }
   }
 }
 
@@ -55,16 +98,17 @@ function cartaro_form_install_configure_form_alter(&$form, $form_state) {
       '#required' => TRUE,
       '#default_value' => 'http://' . $_SERVER['SERVER_NAME'] . ':8080/geoserver',
     ),
-    'geoserver_workspace_support' => array(
-      '#title' => st('Support GeoServer Drupal authentication'),
-      '#type' => 'checkbox',
-      '#description' => st('Allow GeoServer to access the permissions and roles configured in Cartaro. This setting requires the geoserver-sec-drupal module to be installed in GeoServer.'),
-      '#default_value' => FALSE
-    ),
     'geoserver_workspace' => array(
       '#title' => st('GeoServer Workspace'),
       '#type' => 'textfield',
       '#required' => TRUE,
+      '#description' => st('The workspace will be created during the instalation if it does not exist.'),
+    ),
+    'geoserver_workspace_support' => array(
+      '#title' => st('Installation shares GeoServer with other Drupal instances'),
+      '#type' => 'checkbox',
+      '#description' => st('Qualifies user names with workspace name when logging into GeoServer. Choose this if you opted for prefixed user names in GeoServer. <b><a target="_blank" href="http://cartaro.org/documentation/using-drupal-users-and-roles-geoserver">geoserver-sec-drupal</a> plugin is required</b>'),
+      '#default_value' => FALSE
     ),
     'postgis_version' => array(
       '#title' => st('PostGIS Version'),
@@ -98,6 +142,16 @@ function cartaro_configure_form_submit($form, &$form_state) {
   if ($form_state['values']['cartaro_demo']) {
     module_enable(array('cartaro_demo'));
   }
+
+  // Activate Cartaro Administration menu in dashboard.
+  db_update('block')
+    ->fields(array(
+      'status' => 1,
+      'region' => 'dashboard_sidebar',
+    ))
+    ->condition('delta', 'cartaro-administration')
+    ->condition('theme', 'seven')
+    ->execute();
 }
 
 /**
@@ -132,13 +186,13 @@ function cartaro_configure_form_validate($form, &$form_state) {
     cartaro_configure_geoserver($geoserver_workspace);
     
     // Copy cookie file since the installation uses uid=0 but after installation one is logged in as uid=1 without going through the usual login procedure.
-    if(copy(geoserver_get_cookiefile(), geoserver_get_cookiefile(1))===FALSE){
+    if(copy(geoserver_get_cookiefile(0), geoserver_get_cookiefile(1))===FALSE){
       drupal_set_message(st('Failed prepare GeoServer login for the administrator.'), 'warning');
     }
   }
   else {
-    form_set_error('geoserver_url', t('GeoServer login failed: %reason Please check the GeoServer URL and your site maintenance account.', 
-        array('%reason' => $geoserver_login)));
+    form_set_error('geoserver_url', t('GeoServer login failed: !reason',
+        array('!reason' => $geoserver_login)));
   }
 }
 
@@ -149,68 +203,72 @@ function cartaro_configure_form_validate($form, &$form_state) {
  */
 function cartaro_configure_geoserver($geoserver_workspace) {
 
-  // Check if workspace is already taken.
   try {
+    // Check if workspace is already available.
     geoserver_get('rest/workspaces/' . $geoserver_workspace . '.json');
-    form_set_error('geoserver_workspace', t('GeoServer Workspace already taken.'));
-    return;
   }
-  catch (geoserver_resource_curl_exception $exc) {
-    // Workspace isn't taken; go on.
+  catch (geoserver_resource_exception $exc) {
+
+    // Workspace isn't available. Try to create workspace.
+    $content = array('workspace' => array('name' => $geoserver_workspace));
+    try {
+      geoserver_post('rest/workspaces.json', $content);
+    }
+    catch (geoserver_resource_exception $exc) {
+      form_set_error('geoserver_workspace', t('Could not create GeoServer workspace: !reason',
+          array('!reason' => $exc->getMessage()))
+      );
+    }
   }
 
-  // Create workspace.
-  $content = array('workspace' => array('name' => $geoserver_workspace));
   try {
-    geoserver_post('rest/workspaces.json', $content);
+    // Check if datastore is already available.
+    geoserver_get('rest/workspaces/' . $geoserver_workspace . '/datastores/cartaro.json');
   }
-  catch (geoserver_resource_curl_exception $exc) {
-    form_set_error('geoserver_workspace', t('Could not create GeoServer workspace: %reason',
-        array('reason' => $exc->getMessage()))
-    );
-  }
+  catch (geoserver_resource_exception $exc) {
 
-  // Create PostGIS datastore.
-  $database = $GLOBALS['databases']['default']['default'];
-  $database['port'] = empty($database['port']) ? '5432' : $database['port'];
-  $content = array(
-    'dataStore' => array(
-      'name' => 'cartaro',
-      'description' => 'Default PostGIS datastore of Cartaro.',
-      'type' => 'PostGIS',
-      'enabled' => TRUE,
-      'workspace' => $geoserver_workspace,
-      'connectionParameters' => array(
-        'entry' => array(
-          array('@key' => 'Connection timeout',   '$' => '20'),
-          array('@key' => 'port',                 '$' => $database['port']),
-          array('@key' => 'passwd',               '$' => $database['password']),
-          array('@key' => 'dbtype',               '$' => 'postgis'),
-          array('@key' => 'host',                 '$' => $database['host']),
-          array('@key' => 'validate connections', '$' => 'false'),
-          array('@key' => 'max connections',      '$' => '10'),
-          array('@key' => 'database',             '$' => $database['database']),
-          array('@key' => 'namespace',            '$' => $geoserver_workspace),
-          array('@key' => 'schema',               '$' => 'public'),
-          array('@key' => 'Loose bbox',           '$' => 'true'),
-          array('@key' => 'Expose primary keys',  '$' => 'false'),
-          array('@key' => 'fetch size',           '$' => '1000'),
-          array('@key' => 'Max open prepared statements', '$' => '50'),
-          array('@key' => 'preparedStatements',   '$' => 'false'),
-          array('@key' => 'Estimated extends',    '$' => 'true'),
-          array('@key' => 'user',                 '$' => $database['username']),
-          array('@key' => 'min connections',      '$' => '1'),
-          array('@key' => 'Primary key metadata table', '$' => 'public.geoserver_pk_metadata_table'),
+    // Create PostGIS datastore.
+    $database = $GLOBALS['databases']['default']['default'];
+    $database['port'] = empty($database['port']) ? '5432' : $database['port'];
+    $content = array(
+      'dataStore' => array(
+        'name' => 'cartaro',
+        'description' => 'Default PostGIS datastore of Cartaro.',
+        'type' => 'PostGIS',
+        'enabled' => TRUE,
+        'workspace' => $geoserver_workspace,
+        'connectionParameters' => array(
+          'entry' => array(
+            array('@key' => 'Connection timeout',   '$' => '20'),
+            array('@key' => 'port',                 '$' => $database['port']),
+            array('@key' => 'passwd',               '$' => $database['password']),
+            array('@key' => 'dbtype',               '$' => 'postgis'),
+            array('@key' => 'host',                 '$' => $database['host']),
+            array('@key' => 'validate connections', '$' => 'false'),
+            array('@key' => 'max connections',      '$' => '10'),
+            array('@key' => 'database',             '$' => $database['database']),
+            array('@key' => 'namespace',            '$' => $geoserver_workspace),
+            array('@key' => 'schema',               '$' => 'public'),
+            array('@key' => 'Loose bbox',           '$' => 'true'),
+            array('@key' => 'Expose primary keys',  '$' => 'false'),
+            array('@key' => 'fetch size',           '$' => '1000'),
+            array('@key' => 'Max open prepared statements', '$' => '50'),
+            array('@key' => 'preparedStatements',   '$' => 'false'),
+            array('@key' => 'Estimated extends',    '$' => 'true'),
+            array('@key' => 'user',                 '$' => $database['username']),
+            array('@key' => 'min connections',      '$' => '1'),
+            array('@key' => 'Primary key metadata table', '$' => 'public.geoserver_pk_metadata_table'),
+          ),
         ),
       ),
-    ),
-  );
-  try {
-    geoserver_post('rest/workspaces/' . $geoserver_workspace . '/datastores.json', $content);
-  }
-  catch (geoserver_resource_curl_exception $exc) {
-    form_set_error('geoserver_workspace', t('Could not create GeoServer datastore in workspace: %reason',
-        array('reason' => $exc->getMessage()))
     );
+    try {
+      geoserver_post('rest/workspaces/' . $geoserver_workspace . '/datastores.json', $content);
+    }
+    catch (geoserver_resource_exception $exc) {
+      form_set_error('geoserver_workspace', t('Could not create GeoServer datastore in workspace: %reason',
+          array('reason' => $exc->getMessage()))
+      );
+    }
   }
 }

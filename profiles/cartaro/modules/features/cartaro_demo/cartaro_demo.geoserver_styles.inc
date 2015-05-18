@@ -20,9 +20,8 @@ function cartaro_demo_geoserver_styles() {
 	<sld:NamedLayer>
 		<sld:Name>capital</sld:Name>
 		<sld:UserStyle>
-			<sld:Name>default_capital</sld:Name>
-			<sld:Title>Default capital style</sld:Title>
-			<sld:Abstract>default</sld:Abstract>
+			<sld:Name>default</sld:Name>
+			<sld:Title>Capital</sld:Title>
 			<sld:FeatureTypeStyle>
 				<sld:Rule>
 					<sld:PointSymbolizer>
@@ -41,9 +40,8 @@ function cartaro_demo_geoserver_styles() {
 			</sld:FeatureTypeStyle>
 		</sld:UserStyle>
 		<sld:UserStyle>
-			<sld:Name>select_capital</sld:Name>
-			<sld:Title>Select capital style</sld:Title>
-			<sld:Abstract>select</sld:Abstract>
+			<sld:Name>select</sld:Name>
+			<sld:Title>Capital selected</sld:Title>
 			<sld:FeatureTypeStyle>
 				<sld:Rule>
 					<sld:PointSymbolizer>

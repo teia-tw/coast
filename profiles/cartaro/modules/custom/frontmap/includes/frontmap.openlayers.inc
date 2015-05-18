@@ -12,6 +12,7 @@ function frontmap_openlayers_behaviors() {
       'path' => drupal_get_path('module', 'frontmap') .'/includes/behaviors',
       'file' => 'openlayers_behavior_popout.inc',
       'behavior' => array(
+        'file' => 'openlayers_behavior_popout.inc',
         'class' => 'openlayers_behavior_popout',
         'parent' => 'openlayers_behavior',
       ),

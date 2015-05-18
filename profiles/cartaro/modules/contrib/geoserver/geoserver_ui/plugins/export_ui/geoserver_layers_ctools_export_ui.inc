@@ -53,7 +53,7 @@ $plugin = array(
 
 function geoserver_layers_ctools_export_ui_form_settings(&$form, &$form_state) {
 
-  $layer = geoserver_get_layer_object($form_state['item']);
+  $layer_object = geoserver_get_layer_object($form_state['item']);
 
   if ($form_state['op'] == 'add'||'edit') {
     $form = array();
@@ -75,7 +75,7 @@ function geoserver_layers_ctools_export_ui_form_settings(&$form, &$form_state) {
       '#title' => t('Layer Title'),
       '#required' => TRUE,
       '#size' => 30,
-      '#default_value' => isset($layer->title) ? $layer->title : '',
+      '#default_value' => isset($layer_object->title) ? $layer_object->title : '',
       '#description' => t('The friendly name of your layer, which will appear in the administration interface.'),
     );
     $form['layer']['basics']['name'] = array(
@@ -85,13 +85,13 @@ function geoserver_layers_ctools_export_ui_form_settings(&$form, &$form_state) {
         'exists' => 'geoserver_layer_load',
         'source' => array('layer', 'basics', 'title'),
       ),
-      '#default_value' => isset($layer->name) ? $layer->name : '',
+      '#default_value' => isset($layer_object->name) ? $layer_object->name : '',
       '#description' => t('This is the unique name of the layer. It must contain only alphanumeric characters and underscores.'),
     );
     $form['layer']['basics']['description'] = array(
       '#type' => 'textfield',
       '#title' => t('Layer Description'),
-      '#default_value' => isset($layer->description) ? $layer->description : '',
+      '#default_value' => isset($layer_object->description) ? $layer_object->description : '',
       '#description' => t('The description of your layer, which will appear in the administration interface.'),
     );
 
@@ -102,8 +102,9 @@ function geoserver_layers_ctools_export_ui_form_settings(&$form, &$form_state) {
     foreach ($layer_types as $layer_type) {
 
       $layer_type_name = $layer_type['name'];
-
-      if (!$layer) {
+      if (isset($layer_object->data) && $layer_object->data['type'] == $layer_type_name) {
+        $layer = $layer_object;
+      } else {
         $layer = geoserver_layer_type_load($layer_type_name);
       }
 
@@ -138,86 +139,92 @@ function geoserver_layers_ctools_export_ui_form_settings(&$form, &$form_state) {
         ),
       );
 
+      $layers_option['attribution'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Layer Attribution'),
+        '#default_value' => isset($layer->data['attribution']) ? $layer->data['attribution'] : '',
+        '#description' => t('The attribution of your layer.'),
+      );
+
       if (module_exists('openlayers')) {
         $openlayers = isset($layer->data['openlayers']) ? $layer->data['openlayers'] : array();
+        $openlayers_layer = new openlayers_layer_type();
+
+        $wfs_data = isset($openlayers['wfs_data']) ? array('data' => $openlayers['wfs_data']) : array();
+        $gwc_data = isset($openlayers['gwc_data']) ? array('data' => $openlayers['gwc_data']) : array();
+        $wms_data = isset($openlayers['wms_data']) ? array('data' => $openlayers['wms_data']) : array();
+
         $layers_option['openlayers'] = array(
           '#type' => 'fieldset',
           '#title' => t('OpenLayers'),
           '#description' => t('Select how you want to have this layer available in maps of the OpenLayers module. Note that raster data is only available for inclusion in the OpenLayers module if the projection chosen here matches the OpenLayers map in question.'),
-        );
-        $layers_option['openlayers']['wfs'] = array(
-          '#type' => 'checkbox',
-          '#title' => t('Provide an OpenLayers WFS layer.'),
-          '#default_value' => isset($openlayers['wfs']) ? $openlayers['wfs'] : '',
-          '#description' => t('This makes your layer\'s content available as vector data.'),
-        );
-        $layers_option['openlayers']['wfs_strategy'] = array(
-          '#type' => 'select',
-          '#options' => array(
-            'bbox' => 'Bounding Box',
-            'fixed' => 'Fixed',
+          'wfs' => array(
+            '#type' => 'checkbox',
+            '#title' => t('Provide an OpenLayers WFS layer.'),
+            '#default_value' => isset($openlayers['wfs']) ? $openlayers['wfs'] : '',
+            '#description' => t('This makes your layer\'s content available as vector data.'),
           ),
-          '#default_value' => isset($openlayers['wfs_strategy']) ? $openlayers['wfs_strategy'] : 'bbox',
-          '#states' => array(
-            'visible' => array(
-              ':input[name="' . $layer_type_name . '[openlayers][wfs]"]' => array(
-                'checked' => TRUE,
+          'wfs_data' => array(
+            '#type' => 'fieldset',
+            '#title' => t('WFS layer options'),
+            '#prefix' => '<div style="padding-left:20px">',
+            '#suffix' => '</div>',
+            '#states' => array(
+              'visible' => array(
+                ':input[name="' . $layer_type_name . '[openlayers][wfs]"]' => array(
+                  'checked' => TRUE,
+                ),
               ),
             ),
+            'strategy' => array(
+              '#type' => 'select',
+              '#title' => t('Strategy'),
+              '#options' => array(
+                'bbox' => 'Bounding Box',
+                'fixed' => 'Fixed',
+              ),
+              '#default_value' => isset($wfs_data['data']['strategy']) ? $wfs_data['data']['strategy'] : 'bbox',
+              '#description' => t('Define the data loading strategy. "Fixed" will load all data initially, "Bounding Box" only loads data for the current map extent.'),
+            ),
+          ) + $openlayers_layer->options_form((object)$wfs_data),
+          'gwc' => array(
+            '#type' => 'checkbox',
+            '#title' => t('Provide a cached OpenLayers WMS layer.'),
+            '#default_value' => isset($openlayers['gwc']) ? $openlayers['gwc'] : '',
+            '#description' => t('Creates a layer that transmits its data using several small adjacent images.'),
           ),
-          '#description' => t('Define the data loading strategy. "Fixed" will load all data initially, "Bounding Box" only loads data for the current map extent.'),
-          '#prefix' => '<div style="padding-left:20px">',
-          '#suffix' => '</div>',
-        );
-        $layers_option['openlayers']['gwc'] = array(
-          '#type' => 'checkbox',
-          '#title' => t('Provide a cached OpenLayers WMS layer.'),
-          '#default_value' => isset($openlayers['gwc']) ? $openlayers['gwc'] : '',
-          '#description' => t('Creates a layer that transmits its data using several small adjacent images.'),
-        );
-        // TODO: merge *_srs fields, depends on Drupal 7.13
-        // Conditional visibility: http://drupal.org/node/1464758
-        $layers_option['openlayers']['gwc_srs'] = array(
-          '#type' => 'select',
-          '#options' => array(
-            'EPSG:4326' => '4326',
-            'EPSG:900913' => '900913',
-          ),
-          '#default_value' => isset($openlayers['gwc_srs']) ? $openlayers['gwc_srs'] : '',
-          '#states' => array(
-            'visible' => array(
-              ':input[name="' . $layer_type_name . '[openlayers][gwc]"]' => array(
-                'checked' => TRUE,
+          'gwc_data' => array(
+            '#type' => 'fieldset',
+            '#title' => t('Cached WMS layer options'),
+            '#prefix' => '<div style="padding-left:20px">',
+            '#suffix' => '</div>',
+            '#states' => array(
+              'visible' => array(
+                ':input[name="' . $layer_type_name . '[openlayers][gwc]"]' => array(
+                  'checked' => TRUE,
+                ),
               ),
             ),
+          ) + $openlayers_layer->options_form((object)$gwc_data),
+          'wms' => array(
+            '#type' => 'checkbox',
+            '#title' => t('Provide an untiled OpenLayers WMS layer.'),
+            '#default_value' => isset($openlayers['wms']) ? $openlayers['wms'] : '',
+            '#description' => t('Creates a layer that transmits its data using one image that spans the entire map.'),
           ),
-          '#description' => t('Choose projection of the generated raster graphics. This should match the projection of any other layers that you want to use in combination with your layer. Select 900913 if you intend to overlay your layer on maps by other providers such as OpenStreetMap, Google, Bing or MapQuest.'),
-          '#prefix' => '<div style="padding-left:20px">',
-          '#suffix' => '</div>',
-        );
-        $layers_option['openlayers']['wms'] = array(
-          '#type' => 'checkbox',
-          '#title' => t('Provide an untiled OpenLayers WMS layer.'),
-          '#default_value' => isset($openlayers['wms']) ? $openlayers['wms'] : '',
-          '#description' => t('Creates a layer that transmits its data using one image that spans the entire map.'),
-        );
-        $layers_option['openlayers']['wms_srs'] = array(
-          '#type' => 'select',
-          '#options' => array(
-            'EPSG:4326' => '4326',
-            'EPSG:900913' => '900913',
-          ),
-          '#default_value' => isset($openlayers['wms_srs']) ? $openlayers['wms_srs'] : '',
-          '#states' => array(
-            'visible' => array(
-              ':input[name="' . $layer_type_name . '[openlayers][wms]"]' => array(
-                'checked' => TRUE,
+          'wms_data' => array(
+            '#type' => 'fieldset',
+            '#title' => t('WMS layer options'),
+            '#prefix' => '<div style="padding-left:20px">',
+            '#suffix' => '</div>',
+            '#states' => array(
+              'visible' => array(
+                ':input[name="' . $layer_type_name . '[openlayers][wms]"]' => array(
+                  'checked' => TRUE,
+                ),
               ),
             ),
-          ),
-          '#description' => t('Choose projection of the generated raster graphics. This should match the projection of any other layers that you want to use in combination with your layer. Select 900913 if you intend to overlay your layer on maps by other providers such as OpenStreetMap, Google, Bing or MapQuest.'),
-          '#prefix' => '<div style="padding-left:20px">',
-          '#suffix' => '</div>',
+          ) + $openlayers_layer->options_form((object)$wms_data),
         );
       }
 
@@ -244,7 +251,7 @@ function geoserver_layers_ctools_export_ui_form_settings(&$form, &$form_state) {
     $form['layer']['layer_type'] = array(
       '#type' => 'select',
       '#title' => t('Layer Type'),
-      '#default_value' => isset($layer->data['type']) ? $layer->data['type']: '',
+      '#default_value' => isset($layer_object->data['type']) ? $layer_object->data['type'] : '',
       '#description' => t('Select the type of layer.'),
       '#options' => $layer_type_options,
     );

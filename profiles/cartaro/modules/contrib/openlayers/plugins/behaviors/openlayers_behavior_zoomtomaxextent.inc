@@ -5,20 +5,6 @@
  */
 
 /**
- * Ctools plugin definition.
- */
-$plugin = array(
-  'title' => t('Zoom to Max Extent'),
-  'description' => t('Provides button to zoom to the maximum extent of the map.'),
-  'type' => 'map',
-  'behavior' => array(
-    'file' => 'openlayers_behavior_zoomtomaxextent.inc',
-    'class' => 'openlayers_behavior_zoomtomaxextent',
-    'parent' => 'openlayers_behavior',
-  ),
-);
-
-/**
  * Zoom to Max Extent Behavior
  */
 class openlayers_behavior_zoomtomaxextent extends openlayers_behavior {

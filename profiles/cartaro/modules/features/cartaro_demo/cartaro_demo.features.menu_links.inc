@@ -42,27 +42,8 @@ function cartaro_demo_menu_default_menu_links() {
     'expanded' => '0',
     'weight' => '0',
   );
-  // Exported menu link: menu-documentation:http://www.cartaro.org/documentation/
-  $menu_links['menu-documentation:http://www.cartaro.org/documentation/'] = array(
-    'menu_name' => 'menu-documentation',
-    'link_path' => 'http://www.cartaro.org/documentation/',
-    'router_path' => '',
-    'link_title' => 'Cartaro Documentation',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Administrator and user documentation',
-      ),
-    ),
-    'module' => 'menu',
-    'hidden' => '0',
-    'external' => '1',
-    'has_children' => '0',
-    'expanded' => '0',
-    'weight' => '0',
-  );
   // Translatables
   // Included for use with string extractors like potx.
-  t('Cartaro Documentation');
   t('Get started');
   t('Map');
 

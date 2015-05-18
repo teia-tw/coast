@@ -5,9 +5,10 @@ package = Testing
 core = 7.x
 hidden = true
 
-; Information added by drupal.org packaging script on 2012-09-20
+
+; Information added by drush on 2015-03-23
 version = "7.x-1.0-beta5"
 core = "7.x"
 project = "nodetype_access"
-datestamp = "1348101871"
+datestamp = "1427131723"
 

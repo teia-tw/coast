@@ -89,8 +89,8 @@ function cartaro_demo_openlayers_maps() {
       'openlayers_geojson_picture_this' => 0,
       'postgis_formatter_layer' => 0,
     ),
-    'projection' => '900913',
-    'displayProjection' => '4326',
+    'projection' => 'EPSG:3857',
+    'displayProjection' => 'EPSG:4326',
     'styles' => array(
       'default' => 'default',
       'select' => 'default_select',

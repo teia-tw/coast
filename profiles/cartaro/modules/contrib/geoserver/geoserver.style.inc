@@ -66,7 +66,8 @@ function geoserver_style_save(&$style) {
         array('%name' => $style->name, '%message' => $exc->getMessage()), WATCHDOG_ERROR);
       return FALSE;
     }
-  } else {
+  }
+  else {
     try {
       geoserver_put("rest/workspaces/$workspace/styles/{$style->name}.sld", $style->data);
     } catch (geoserver_resource_exception $exc) {
@@ -128,7 +129,7 @@ function geoserver_style_status($style) {
   $workspace = variable_get('geoserver_workspace', '');
   try {
     $result = geoserver_get("rest/workspaces/$workspace/styles/{$style->name}.sld");
-  } catch (geoserver_resource_curl_exception $exc) {
+  } catch (geoserver_resource_http_exception $exc) {
     return GEOSERVER_STATUS_NOT_FOUND;
   }
 
@@ -138,13 +139,4 @@ function geoserver_style_status($style) {
   else {
     return GEOSERVER_STATUS_FOUND_DIFF;
   }
-}
-
-
-function geoserver_styles_features_rebuild($module_name) {
-
-  dvm($module_name);
-  //var_dump($module_name);die;
-  dvm('geoserver_styles_features_rebuild');
-
 }

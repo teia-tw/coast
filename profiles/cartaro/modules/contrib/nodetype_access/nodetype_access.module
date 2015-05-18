@@ -46,6 +46,7 @@ function nodetype_access_get_permission($nodetype) {
 function nodetype_access_get_permissions() {
   $permission_keys = &drupal_static(__FUNCTION__);
   if(!isset($permission_keys)) {
+    $permission_keys = array();
     foreach(node_type_get_types() as $nodetype => $info) {
       $nodetype = check_plain($nodetype);
       $permission_keys[$nodetype] = nodetype_access_get_permission($nodetype);

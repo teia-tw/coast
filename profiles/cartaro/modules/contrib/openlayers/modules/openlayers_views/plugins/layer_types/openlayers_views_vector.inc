@@ -7,15 +7,17 @@
 /**
  * Ctools plugin definition
  */
-$plugin = array(
-  'title' => t('OpenLayers_Views'),
-  'description' => t('OpenLayers Views Vector'),
-  'layer_type' => array(
-    'file' => 'openlayers_views_vector.inc',
-    'class' => 'openlayers_layer_type_openlayers_views_vector',
-    'parent' => 'openlayers_layer_type',
-  ),
-);
+function openlayers_views_openlayers_views_vector_openlayers_layer_types() {
+  return array(
+    'title' => t('OpenLayers Views'),
+    'description' => t('OpenLayers Views Vector'),
+    'layer_type' => array(
+      'file' => 'openlayers_views_vector.inc',
+      'class' => 'openlayers_layer_type_openlayers_views_vector',
+      'parent' => 'openlayers_layer_type',
+    ),
+  );
+}
 
 class openlayers_layer_type_openlayers_views_vector
   extends openlayers_layer_type {
@@ -24,9 +26,20 @@ class openlayers_layer_type_openlayers_views_vector
    */
   function options_init() {
     return array(
-      'layer_type' => 'openlayers_layer_type_openlayers_views_vector',
       'layer_handler' => 'openlayers_views_vector',
+      'layer_type' => 'openlayers_views_vector',
+      'projection' => array('EPSG:4326'),
+      'isBaseLayer' => FALSE,
       'vector' => TRUE,
+      'type' => 'Vector',
+      'url' => array(),
+      'options' => array(
+        'rendererOptions' => array(
+          'yOrdering' => TRUE
+        )
+      ),
+      'events' => array(),
+      'views' => array(),
     );
   }
 
@@ -34,9 +47,48 @@ class openlayers_layer_type_openlayers_views_vector
    * Options form which generates layers
    */
   function options_form($defaults = array()) {
-    return array(
+    $form = array();
+
+    $views = views_get_all_views();
+
+    $options = array('' => '<none>');
+    foreach ($views as $view) {
+      foreach ($view->display as $display => $data) {
+        $view->set_display($display);
+        if ($data->display_plugin == 'openlayers' && ($view->display_handler->get_option('style_plugin') == 'openlayers_data')) {;
+          $options[$view->name . '::' . $display] = $view->human_name . ': ' . $display;
+        }
+      }
+    }
+
+    $default = NULL;
+    if (isset($this->data['views']['view']) && isset($this->data['views']['display'])) {
+      $default = $this->data['views']['view'] . '::' . $this->data['views']['display'];
+    }
+
+    $form['views']['composite'] = array(
+      '#type' => 'select',
+      '#options' => $options,
+      '#title' => 'View name',
+      '#default_value' => isset($default) ?
+        $default : '',
     );
+    return $form;
   }
+
+  function options_form_validate($form, &$form_state) {
+    if (!empty($form_state['data']['views']['composite'])) {
+      list($view, $display) = explode('::', $form_state['data']['views']['composite']);
+      $form_state['data']['views']['view'] = $view;
+      $form_state['data']['views']['display'] = $display;
+      unset($form_state['data']['views']['composite']);
+    }
+    else {
+      $field = $form_state['data']['layer_type'] . '][views][composite';
+      form_set_error($field, t('A View must be set.'));
+    }
+  }
+
 
   /**
    * Get features for this view
@@ -48,8 +100,8 @@ class openlayers_layer_type_openlayers_views_vector
    * @return
    *   array of features
    */
-  function get_features($view_name, $display_name) {
-    if ($view = views_get_view($view_name)) {
+  function get_features() {
+    if ($view = views_get_view($this->data['views']['view'])) {
       $args = array();
       // Retrieve args/filters from current view
       // to pass on to our vector layer.
@@ -60,14 +112,21 @@ class openlayers_layer_type_openlayers_views_vector
           $view->set_exposed_input($current_view->exposed_input);
         }
       }
-      $features = $view->execute_display($display_name, $args);
+
+      if (isset($this->data['views']['arguments'])) {
+        $args = $this->data['views']['arguments'];
+      }
+
+      $features = $view->execute_display($this->data['views']['display'], $args);
 
       // Get dynamic title from view
       $this->title = $view->get_title();
 
       $view->destroy();
     }
-    return isset($features) ? $features : array();
+
+    $this->data['features'] = isset($features) ? $features : array();
+    return $this->data['features'];
   }
 
   /**
@@ -76,9 +135,6 @@ class openlayers_layer_type_openlayers_views_vector
   function render(&$map) {
     drupal_add_js(drupal_get_path('module', 'openlayers_views') .
       '/plugins/layer_types/openlayers_views_vector.js');
-    $features = $this->get_features($this->data['views']['view'],
-      $this->data['views']['display']);
-    $this->data['features'] = $features;
-    return $this->options;
+    $this->get_features();
   }
 }

@@ -111,7 +111,7 @@ function cartaro_demo_field_default_fields() {
           'label' => 'above',
           'module' => 'postgis',
           'settings' => array(
-            'map' => 'postgis_formatter_map',
+            'map' => 'default',
           ),
           'type' => 'openlayers',
           'weight' => 1,
@@ -134,7 +134,7 @@ function cartaro_demo_field_default_fields() {
         'module' => 'postgis',
         'settings' => array(
           'behavior' => 'openlayers_behavior_ole',
-          'map' => 'postgis_widget_map',
+          'map' => 'default',
         ),
         'type' => 'openlayers',
         'weight' => '-3',

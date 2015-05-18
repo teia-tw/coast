@@ -64,6 +64,11 @@ class openlayer_layer_assistant_render {
       '#default_value' => '',
       '#description' => t('The description of your layer, which will appear in the administration interface.'),
     );
+    // Include fields that are present for all layers
+    $parent = new openlayers_layer_type();
+    foreach($parent->options_form() as $fieldName => $field){
+      $form['basics'][$fieldName] = $field;
+    }
   }
   
   /**
