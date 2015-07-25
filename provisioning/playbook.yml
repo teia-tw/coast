@@ -1,0 +1,92 @@
+---
+- hosts: web
+  sudo: yes
+  tasks:
+    - name: ensure apt cache is the latest
+      apt: update_cache=yes upgrade=yes
+
+    - name: ensure packages are the latest
+      apt: name={{ item }} state=latest
+      with_items:
+        - apache2
+        - libapache2-mod-php5
+        - php5
+        - php-pear
+        - php5-gd
+        - php5-curl
+        - php5-sqlite
+        - php5-mysql
+        - php5-pgsql
+        - curl
+        - unzip
+        - drush
+
+    - name: ensure Apache site config is the latest
+      copy: >
+        src=site.conf
+        dest=/etc/apache2/sites-available/default
+      register: siteconf
+
+    - name: ensure Apache is restarted
+      service: name=apache2 state=restarted
+      when: siteconf.changed
+
+    - name: ensure Drupal settings is the latest
+      copy: >
+        src=settings.php
+        dest=/var/www/sites/default/settings.php
+
+- hosts: db
+  sudo: yes
+  tasks:
+    - name: ensure apt cache is the latest
+      apt: update_cache=yes upgrade=yes
+
+    - name: ensure packages are the latest
+      apt: name={{ item }} state=latest
+      with_items:
+        - mysql-server
+        # for ansible
+        - python-mysqldb
+
+    - name: ensure MySQL is listening to all
+      lineinfile: >
+        dest=/etc/mysql/my.cnf
+        regexp=^bind-address
+        line="bind-address = *"
+        backrefs=yes
+      register: myconf
+
+    - name: ensure MySQL is restarted
+      service: name=mysql state=restarted
+      when: myconf.changed
+
+    - name: ensure Drupal user is present
+      mysql_user: >
+        name=drupal
+        password=foobar
+        host=%
+        login_user=root
+        login_password=""
+        priv="drupal.*:ALL"
+        state=present
+    - name: ensure Drupal database is present
+      mysql_db: >
+        name=drupal
+        login_user=root
+        login_password=""
+        state=present
+      register: mysqldb
+    - name: copy database dump file to remote host
+      ignore_errors: yes
+      copy: src=database.mysql.gz dest=/tmp
+      when: mysqldb.changed
+      register: databasefile
+    - name: ensure database is provisioned
+      mysql_db: >
+        name=drupal
+        login_user=root
+        login_password=""
+        target=/tmp/database.mysql.gz
+        state=import
+      when: mysqldb.changed and databasefile
