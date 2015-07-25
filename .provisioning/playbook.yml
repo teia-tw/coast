@@ -3,7 +3,7 @@
   sudo: yes
   tasks:
     - name: ensure apt cache is the latest
-      apt: update_cache=yes upgrade=yes
+      apt: update_cache=yes upgrade=yes cache_valid_time=86400
 
     - name: ensure packages are the latest
       apt: name={{ item }} state=latest
@@ -27,20 +27,22 @@
         dest=/etc/apache2/sites-available/default
       register: siteconf
 
+    - name: ensure PHP is configured
+      lineinfile: >
+        dest=/etc/php5/apache2/php.ini
+        regexp="max_execution_time = .*"
+        line="max_execution_time = 120"
+      register: phpconf
+
     - name: ensure Apache is restarted
       service: name=apache2 state=restarted
-      when: siteconf.changed
-
-    - name: ensure Drupal settings is the latest
-      copy: >
-        src=settings.php
-        dest=/var/www/sites/default/settings.php
+      when: siteconf.changed or phpconf.changed
 
 - hosts: db
   sudo: yes
   tasks:
     - name: ensure apt cache is the latest
-      apt: update_cache=yes upgrade=yes
+      apt: update_cache=yes upgrade=yes cache_valid_time=86400
 
     - name: ensure packages are the latest
       apt: name={{ item }} state=latest
@@ -55,13 +57,13 @@
         regexp=^bind-address
         line="bind-address = *"
         backrefs=yes
-      register: myconf
+      register: mysqlconf
 
-    - name: ensure MySQL is restarted
+    - name: ensure MySQL is restarted when it is reconfigured
       service: name=mysql state=restarted
-      when: myconf.changed
+      when: mysqlconf.changed
 
-    - name: ensure Drupal user is present
+    - name: ensure Drupal database user is present
       mysql_user: >
         name=drupal
         password=foobar
@@ -70,23 +72,33 @@
         login_password=""
         priv="drupal.*:ALL"
         state=present
+
     - name: ensure Drupal database is present
       mysql_db: >
         name=drupal
         login_user=root
         login_password=""
         state=present
-      register: mysqldb
+
     - name: copy database dump file to remote host
       ignore_errors: yes
       copy: src=database.mysql.gz dest=/tmp
-      when: mysqldb.changed
       register: databasefile
-    - name: ensure database is provisioned
+
+    - name: ensure database is provisioned when database is changed
       mysql_db: >
         name=drupal
         login_user=root
         login_password=""
         target=/tmp/database.mysql.gz
         state=import
-      when: mysqldb.changed and databasefile
+      when: databasefile.changed
+      register: mysqldata
+
+- hosts: web
+  tasks:
+    - name: ensure Drupal settings is the present when database is provisioned
+      copy: >
+        src=settings.php
+        dest=/var/www/sites/default/settings.php
+      when: mysqldata
