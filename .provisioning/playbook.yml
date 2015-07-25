@@ -21,6 +21,15 @@
         - unzip
         - drush
 
+    - name: ensure Apache modules are enabled
+      apache2_module: name={{ item }}
+      with_items:
+        - rewrite
+        - expires
+        - auth_basic
+        - headers
+      register: apache2module
+
     - name: ensure Apache site config is the latest
       copy: >
         src=site.conf
@@ -36,7 +45,7 @@
 
     - name: ensure Apache is restarted
       service: name=apache2 state=restarted
-      when: siteconf.changed or phpconf.changed
+      when: apache2module.changed or siteconf.changed or phpconf.changed
 
 - hosts: db
   sudo: yes
