@@ -1,11 +1,14 @@
 ---
-- hosts: web
+- hosts: all
   sudo: yes
   tasks:
     - name: ensure apt cache is the latest
       apt: update_cache=yes upgrade=yes cache_valid_time=86400
 
-    - name: ensure packages are the latest
+- hosts: web
+  sudo: yes
+  tasks:
+    - name: ensure web packages are the latest
       apt: name={{ item }} state=latest
       with_items:
         - apache2
@@ -21,46 +24,43 @@
         - unzip
         - drush
 
-    - name: ensure Apache modules are enabled
+    - name: ensure apache modules are enabled
       apache2_module: name={{ item }}
       with_items:
         - rewrite
         - expires
         - auth_basic
         - headers
-      register: apache2module
+      register: a2module
 
-    - name: ensure Apache site config is the latest
+    - name: ensure apache site is configured
       copy: >
         src=site.conf
         dest=/etc/apache2/sites-available/default
       register: siteconf
 
-    - name: ensure PHP is configured
+    - name: ensure php is configured
       lineinfile: >
         dest=/etc/php5/apache2/php.ini
         regexp="max_execution_time = .*"
         line="max_execution_time = 120"
       register: phpconf
 
-    - name: ensure Apache is restarted
+    - name: ensure apache is restarted when needed
       service: name=apache2 state=restarted
-      when: apache2module.changed or siteconf.changed or phpconf.changed
+      when: a2module.changed or siteconf.changed or phpconf.changed
 
 - hosts: db
   sudo: yes
   tasks:
-    - name: ensure apt cache is the latest
-      apt: update_cache=yes upgrade=yes cache_valid_time=86400
-
-    - name: ensure packages are the latest
+    - name: ensure db packages are the latest
       apt: name={{ item }} state=latest
       with_items:
         - mysql-server
         # for ansible
         - python-mysqldb
 
-    - name: ensure MySQL is listening to all
+    - name: ensure mysql is listening to all
       lineinfile: >
         dest=/etc/mysql/my.cnf
         regexp=^bind-address
@@ -68,11 +68,11 @@
         backrefs=yes
       register: mysqlconf
 
-    - name: ensure MySQL is restarted when it is reconfigured
+    - name: ensure mysql is restarted when needed
       service: name=mysql state=restarted
       when: mysqlconf.changed
 
-    - name: ensure Drupal database user is present
+    - name: ensure drupal database user is present
       mysql_user: >
         name=drupal
         password=foobar
@@ -82,32 +82,32 @@
         priv="drupal.*:ALL"
         state=present
 
-    - name: ensure Drupal database is present
+    - name: ensure drupal database is present
       mysql_db: >
         name=drupal
         login_user=root
         login_password=""
         state=present
 
-    - name: copy database dump file to remote host
+    - name: copy database dump file to db server when it exists
       ignore_errors: yes
       copy: src=database.mysql.gz dest=/tmp
-      register: databasefile
+      register: dbfile
 
-    - name: ensure database is provisioned when database is changed
+    - name: ensure database is provisioned when needed
       mysql_db: >
         name=drupal
         login_user=root
         login_password=""
         target=/tmp/database.mysql.gz
         state=import
-      when: databasefile.changed
-      register: mysqldata
+      when: dbfile and dbfile.changed
+      register: dbdata
 
 - hosts: web
   tasks:
-    - name: ensure Drupal settings is the present when database is provisioned
+    - name: ensure drupal settings is the present when database is provisioned
       copy: >
         src=settings.php
         dest=/var/www/sites/default/settings.php
-      when: mysqldata
+      when: dbdata
