@@ -108,4 +108,4 @@
       copy: >
         src=settings.php
         dest=/var/www/sites/default/settings.php
-      when: dbdata
+      when: hostvars.db.dbdata.changed
