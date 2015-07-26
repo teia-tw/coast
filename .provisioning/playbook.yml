@@ -80,14 +80,12 @@
         login_user=root
         login_password=""
         priv="drupal.*:ALL"
-        state=present
 
     - name: ensure drupal database is present
       mysql_db: >
         name=drupal
         login_user=root
         login_password=""
-        state=present
 
     - name: copy database dump file to db server when it exists
       ignore_errors: yes
