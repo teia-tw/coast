@@ -9,5 +9,3 @@
 - name: ensure memcache is restarted if needed
   service: name=memcached state=restarted
   when: memcacheconf.changed
-
-
