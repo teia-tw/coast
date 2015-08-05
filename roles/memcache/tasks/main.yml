@@ -4,5 +4,10 @@
 
 - name: ensure memcached listens to all
   lineinfile: name=/etc/memcached.conf regexp=^-l state=absent
+  register: memcachedconf
+
+- name: ensure memcached is restarted if needed
+  service: name=memcached state=restarted
+  when: memcachedconf.changed
 
 
