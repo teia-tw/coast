@@ -1,0 +1,14 @@
+---
+- name: ensure drupal7 packages are the latest
+  apt: name={{ item }} state=latest
+  with_items:
+    - curl
+    - unzip
+    - drush
+
+- name: ensure drupal settings is the present when database is provisioned
+  copy: >
+    src=settings.php
+    dest=/var/www/sites/default/settings.php
+    force=no
+  when: hostvars.db.dbdata
