@@ -4,7 +4,7 @@ A Vagrant + Ansible environment for Drupal development.
 Usage
 -----
 
-        # Put your Drupal site under project root directory
+        # Put your Drupal site under `docroot` directory
         $ vagrant up
         # check http://localhost:8080/
 
