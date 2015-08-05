@@ -6,6 +6,7 @@
     - curl
     - unzip
     - drush
+    - mysql-client
 
 - name: ensure drupal settings is the present when database is provisioned
   template: >
