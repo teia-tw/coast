@@ -12,6 +12,7 @@
     - php5-mysql
     - php5-pgsql
     - php5-memcache
+    - mysql-client
 
 - name: ensure apache modules are enabled
   apache2_module: name={{ item }}
