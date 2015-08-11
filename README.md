@@ -15,3 +15,11 @@ You can connect to MySQL at `localhost:3306`.
 * DB Host: 192.168.10.3
 * DB User: drupal
 * DB Password: foobar
+
+### Drush
+
+        $ cp vg.aliases.drushrc.php ~/.drush/
+        $ vagrant ssh-config > ssh_config
+        $ drush @vg status
+        # and possibly
+        $ drush site-set @vg
