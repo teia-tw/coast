@@ -14,3 +14,6 @@
     dest=/var/www/sites/default/settings.php
     force=no
   when: hostvars.db.dbdata
+
+- name: ensure files directory is present
+  file: dest=/var/www/sites/default/files mode=0777
