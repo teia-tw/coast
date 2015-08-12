@@ -17,3 +17,6 @@
 
 - name: ensure files directory is present
   file: dest=/var/www/sites/default/files mode=0777
+
+- name: ensure registry_rebuild is present
+  command: drush dl registry_rebuild
