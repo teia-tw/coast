@@ -5,6 +5,8 @@ Usage
 -----
 
         # Put your Drupal site under `docroot` directory
+        # (Optional) put database dump at `database.mysql.gz`
+        # (Optional) put public files dump at `files.tar.gz`
         $ vagrant up
         # check http://localhost:8080/
 
