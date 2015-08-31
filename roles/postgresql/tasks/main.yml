@@ -1,0 +1,46 @@
+---
+- name: ensure postgresql apt key is present
+  sudo: yes
+  apt_key: url=https://www.postgresql.org/media/keys/ACCC4CF8.asc
+
+- name: ensure postgresql apt repository is present
+  sudo: yes
+  apt_repository: repo="deb http://apt.postgresql.org/pub/repos/apt/ wheezy-pgdg main"
+
+- name: ensure packages are the latest
+  sudo: yes
+  apt: name={{ item }} state=latest update_cache=yes cache_valid_time=3600
+  with_items:
+    - postgresql-9.4
+    - postgis
+    - python-psycopg2
+
+- name: ensure postgresql listens to all remote hosts
+  sudo: yes
+  lineinfile: dest=/etc/postgresql/9.4/main/postgresql.conf regexp="^#listen_addresses = 'localhost'" line="listen_addresses = '*'"
+  register: pgconf
+
+- name: ensure postgresql authentication for connections
+  sudo: yes
+  lineinfile: dest=/etc/postgresql/9.4/main/pg_hba.conf line="host all all 192.168.10.0/24 trust"
+  register: pghba
+
+- name: ensure postgresql is restarted if needed
+  sudo: yes
+  service: name=postgresql state=restarted
+  when: pgconf.changed or pghba.changed
+
+- name: ensure database user is present
+  sudo: yes
+  sudo_user: postgres
+  postgresql_user: name=drupal
+
+- name: ensure database is present
+  sudo: yes
+  sudo_user: postgres
+  postgresql_db: name=drupal encoding="UTF-8"
+
+- name: enuser posgis is present
+  sudo: yes
+  sudo_user: postgres
+  postgresql_ext: name=postgis db=drupal
