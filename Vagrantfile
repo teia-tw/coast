@@ -43,6 +43,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
     db.vm.network :private_network, ip: "192.168.10.3"
     db.vm.network :forwarded_port, guest: 3306, host: 3306
+    db.vm.network :forwarded_port, guest: 5432, host: 5432
     db.vm.network :forwarded_port, guest: 11211, host: 11211
     db.vm.synced_folder "log", "/var/log/drupal7",
       owner: "vagrant",

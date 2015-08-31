@@ -12,17 +12,8 @@
 
 - hosts: db
   sudo: yes
-  vars:
-    postgresql_postgis: true
-    postgresql_listen_addresses: '*'
-    postgresql_authentication:
-      - type: host
-        user: drupal
-        method: md5
-        database: drupal
-        address: '192.168.0.0/24'
   roles:
-    - zenoamaro.postgresql
+    - postgresql
     - memcache
 
 - hosts: web
