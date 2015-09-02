@@ -20,7 +20,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     web.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id,
-        "--name", "drupal_web",
+        "--name", "coast_web",
         "--memory", "1024"
       ]
     end
@@ -37,8 +37,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     db.vm.provider :virtualbox do |vb|
       vb.customize [
         "modifyvm", :id,
-        "--name", "drupal_db",
-        "--memory", "1024"
+        "--name", "coast_db",
+        "--memory", "2048"
       ]
     end
     db.vm.network :private_network, ip: "192.168.10.3"
