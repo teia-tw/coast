@@ -21,7 +21,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vb.customize [
         "modifyvm", :id,
         "--name", "coast_web",
-        "--memory", "1024"
+        "--memory", "2048"
       ]
     end
     web.vm.network :forwarded_port, guest: 80, host: 8080
@@ -38,7 +38,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vb.customize [
         "modifyvm", :id,
         "--name", "coast_db",
-        "--memory", "2048"
+        "--memory", "1024"
       ]
     end
     db.vm.network :private_network, ip: "192.168.10.3"
