@@ -43,7 +43,7 @@ function refreshLayerIcon() {
 }
 
 function bindLayerCategories() {
-  map = jQuery('.openlayers-map-taiwan_coast').data('openlayers').openlayers;
+  map = jQuery('.openlayers-map-taiwan-coast').data('openlayers').openlayers;
   for (var i = 0; i < category.length; i++) {
 
     for (var j = 0; j < layers[category[i]].length; j++) {
@@ -77,7 +77,7 @@ function bindLayerCategories() {
 
 if (typeof OpenLayers !== 'undefined') {
 jQuery(document).ready(function ($) {
-  $('.openlayers-map-taiwan_coast').data('openlayers').openlayers.events.register('changelayer', null, refreshLayerIcon);
+  $('.openlayers-map-taiwan-coast').data('openlayers').openlayers.events.register('changelayer', null, refreshLayerIcon);
   refreshLayerIcon();
   bindLayerCategories();
 });
