@@ -213,7 +213,7 @@
 $databases['default']['default'] = array(
   'driver' => 'mysql',
   'database' => 'drupal',
-  'username' => 'drupal',
+  'username' => 'postgres',
   'password' => 'foobar',
   'host' => '192.168.10.3',
   'prefix' => '',

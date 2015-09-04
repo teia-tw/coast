@@ -35,31 +35,16 @@
   copy: src=database.pgsql.gz dest=/tmp
   register: dbfile
 
-- name: ensure database user is present
-  sudo: yes
-  sudo_user: postgres
-  postgresql_user: name=drupal
+- name: unarchive database dump file when it exists
+  ignore_errors: yes
+  shell: gunzip /tmp/database.pgsql.gz > /tmp/database.pgsql
+  when: dbfile.changed
 
 - name: ensure database is present
   sudo: yes
   sudo_user: postgres
   postgresql_db: name=drupal encoding="UTF-8"
   register: db
-
-- name: ensure database table privileges are set
-  sudo: yes
-  sudo_user: postgres
-  postgresql_privs: db=drupal privs=ALL type=table objs=ALL_IN_SCHEMA schema=public roles=PUBLIC
-
-- name: ensure database sequence privileges are set
-  sudo: yes
-  sudo_user: postgres
-  postgresql_privs: db=drupal privs=ALL type=sequence objs=ALL_IN_SCHEMA schema=public roles=PUBLIC
-
-- name: ensure database schema privileges are set
-  sudo: yes
-  sudo_user: postgres
-  postgresql_privs: db=drupal privs=ALL type=schema objs=public roles=PUBLIC
 
 - name: ensuer posgis is present
   sudo: yes
@@ -69,5 +54,5 @@
 - name: ensure database is provisioned if needed
   sudo: yes
   sudo_user: postgres
-  shell: gunzip -c /tmp/database.pgsql.gz | psql -d drupal
+  shell: psql -d drupal < /tmp/database.pgsql
   when: db.changed or dbfile.changed

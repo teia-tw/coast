@@ -16,8 +16,8 @@ You can connect to MySQL at `localhost:3306`.
 
 * DB Host: 192.168.10.3
 * DB Name: drupal
-* DB User: drupal
-* DB Password: foobar
+* DB User: postgres
+* DB Password: *anything*
 
 ### Drush
 
