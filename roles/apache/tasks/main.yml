@@ -36,6 +36,13 @@
     line="max_execution_time = 120"
   register: phpconf
 
+- name: ensure php is configured
+  lineinfile: >
+    dest=/etc/php5/apache2/php.ini
+    regexp="memory_limit = .*"
+    line="memory_limit = 256MB"
+  register: phpconf
+
 - name: ensure apache is restarted when needed
   service: name=apache2 state=restarted
   when: a2module.changed or siteconf.changed or phpconf.changed
