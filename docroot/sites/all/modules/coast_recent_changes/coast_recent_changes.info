@@ -8,5 +8,6 @@ project = coast_recent_changes
 dependencies[] = ctools
 dependencies[] = views
 features[ctools][] = views:views_default:3.0
-features[features_api][] = api:1
+features[features_api][] = api:2
 features[views_view][] = coast_recent_changes
+mtime = 1441118735

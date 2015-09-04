@@ -40,9 +40,9 @@ function getElementsByClassName(node, classname) {
 if (typeof OpenLayers !== 'undefined') {
 OpenLayers.Control.StaticLayerSwitcher = OpenLayers.Class(OpenLayers.Control, {
 
-    /**  
-     * Property: layerStates 
-     * {Array(Object)} Basically a copy of the "state" of the map's layers 
+    /**
+     * Property: layerStates
+     * {Array(Object)} Basically a copy of the "state" of the map's layers
      *     the last time the control was drawn. We have this in order to avoid
      *     unnecessarily redrawing the control.
      */

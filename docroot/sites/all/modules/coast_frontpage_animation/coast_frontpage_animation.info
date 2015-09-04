@@ -10,5 +10,6 @@ dependencies[] = ctools_custom_content
 dependencies[] = features
 features[ctools][] = ctools_custom_content:ctools_content:1
 features[ctools_custom_content][] = coast_frontpage_animation
-features[features_api][] = api:1
+features[features_api][] = api:2
 features[filter][] = html
+mtime = 1441118735
