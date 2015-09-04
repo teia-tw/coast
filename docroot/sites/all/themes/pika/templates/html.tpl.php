@@ -9,8 +9,8 @@
 <?php print variable_get("themestyle");
 ?>
 </style>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> 
-<script src="sites/all/themes/pika/js/jquery.refineslide.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="/sites/all/themes/pika/js/jquery.refineslide.js"></script>
 <?php print $scripts; ?>
     <!--[if lt IE 9]>
         <script src="sites/all/themes/pika/js/respond.min.js"></script>
@@ -18,7 +18,7 @@
 <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
 </head>
 <body class="<?php print $classes; ?>"<?php print $attributes; ?>>
-<?php print $page_top; ?> <?php print $page; ?> <?php print $page_bottom; ?> 
+<?php print $page_top; ?> <?php print $page; ?> <?php print $page_bottom; ?>
 
 <script>
         $(function () {
