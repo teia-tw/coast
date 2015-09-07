@@ -1,0 +1,117 @@
+<?php
+
+
+function views_isotope_example_menu() {
+  $items['test_isotope'] = array(
+    'title' => 'Isotope Theme Example',
+    'page callback' => 'views_isotope_example_page',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+function views_isotope_example_page(){
+
+  //The label can be anything, including images, etc. Filtering happens on the key.
+  $colors = array(
+    'blue' => 'Blue', 
+    'red' => '<span class="thisIsCustomisedLabel">Red</span>', 
+    'yellow' => 'Yellow'
+  );
+  $return[] = array(
+    '#theme' => 'isotope_filter',
+    '#items' => $colors,
+    '#filtername' => 'color',//Optional: unique to distinguish it from the other filters on the page.
+    '#filtertitle' => t('Colour'),//Optional: displayed as an h2
+  );
+
+  $sizes = array(
+    'small' => 'Small', 
+    'wide' => 'Wide', 
+    'big' => 'Big', 
+    'tall' => 'Tall'
+  );
+  $return[] = array(
+    '#theme' => 'isotope_filter',
+    '#items' => $sizes,
+    '#filtername' => 'size',
+    '#filtertitle' => t('Size'),
+  );
+
+  $shapes = array(
+    'round' => 'Round', 
+    'square' => 'Square'
+  );
+  $return[] = array(
+    '#theme' => 'isotope_filter',
+    '#items' => $shapes,
+    '#filtername' => 'shape',
+    '#filtertitle' => t('Shapes'),
+    '#instance' => 1,
+  );
+
+  $return[] = array(
+    '#theme' => 'isotope_sorter',
+    '#sorts' => array('Size' => 'size', 'shape', 'color', array('color', 'size'), 'Color then Shape' => array('color', 'shape')),
+    '#original' => 'Original',
+    '#instance' => 1,
+  );
+
+//Create items of every size shape and color
+  $items = array();
+  foreach($sizes as $size => $label1){
+    foreach($shapes as $shape => $label2){
+      foreach($colors as $color => $label3){
+        $items[] = array(
+          'value' => '<p>Item</p>',
+          'data' => array(
+            'size' => $size,
+            'shape' => $shape,
+            'color' => $color,
+            ),
+          );
+      }
+    }
+  }
+
+  ####### First Instance #########
+
+  $return[] = array(
+    '#theme' => 'isotope_grid',
+    '#items' => $items,
+    '#instance' => 1,
+    '#attached' => array(
+      'css' => array(drupal_get_path('module', 'views_isotope_example') . '/views_isotope_example.css')
+      ),
+  );
+
+
+  ####### Second Instance #########
+
+  $return[] = array(
+    '#theme' => 'isotope_filter',
+    '#items' => $shapes,
+    '#filtername' => 'shape',
+    '#filtertitle' => t('Shapes'),
+    '#instance' => 'wombat',
+  );
+
+  $return[] = array(
+    '#theme' => 'isotope_sorter',
+    '#sorts' => array('Size' => 'size', 'shape', 'color', array('color', 'size'), 'Color then Shape' => array('color', 'shape')),
+    '#original' => 'Original',
+    '#instance' => 'wombat',
+  );
+
+  $return[] = array(
+    '#theme' => 'isotope_grid',
+    '#items' => $items,
+    '#instance' => 'wombat',
+    '#config' => 'vertical',
+    '#attached' => array(
+      'css' => array(drupal_get_path('module', 'views_isotope_example') . '/views_isotope_example.css')
+      ),
+  );
+
+  return $return;
+}

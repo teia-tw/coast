@@ -1,0 +1,16 @@
+; $Id:
+name = Isotope - Example
+description = An example of how to use the Isotope module by theme calls.
+package = User interface
+version = 7.x-2.x-dev
+core = 7.x
+configure = test_isotope
+
+dependencies[] = views_isotope_core
+
+; Information added by Drupal.org packaging script on 2015-01-26
+version = "7.x-2.0-alpha1+2-dev"
+core = "7.x"
+project = "views_isotope"
+datestamp = "1422235381"
+
