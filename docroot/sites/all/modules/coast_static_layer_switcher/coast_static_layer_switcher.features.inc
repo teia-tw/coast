@@ -7,8 +7,7 @@
 /**
  * Implements hook_ctools_plugin_api().
  */
-function coast_static_layer_switcher_ctools_plugin_api() {
-  list($module, $api) = func_get_args();
+function coast_static_layer_switcher_ctools_plugin_api($module = NULL, $api = NULL) {
   if ($module == "ctools_custom_content" && $api == "ctools_content") {
     return array("version" => "1");
   }

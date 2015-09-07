@@ -45,18 +45,18 @@ function coast_recent_changes_views_default_views() {
     'body' => 'right',
     'field_image' => 'left',
   );
-  /* 頁首: 全域: Unfiltered text */
+  /* 頁首: Global: Unfiltered text */
   $handler->display->display_options['header']['area_text_custom']['id'] = 'area_text_custom';
   $handler->display->display_options['header']['area_text_custom']['table'] = 'views';
   $handler->display->display_options['header']['area_text_custom']['field'] = 'area_text_custom';
-  /* 欄位: 內容: 標題 */
+  /* 欄位: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
   $handler->display->display_options['fields']['title']['label'] = '';
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* 欄位: 內容: 說明 */
+  /* 欄位: Content: 說明 */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -66,7 +66,7 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['fields']['body']['settings'] = array(
     'trim_length' => '100',
   );
-  /* 欄位: 內容: 照片 */
+  /* 欄位: Content: 照片 */
   $handler->display->display_options['fields']['field_image']['id'] = 'field_image';
   $handler->display->display_options['fields']['field_image']['table'] = 'field_data_field_image';
   $handler->display->display_options['fields']['field_image']['field'] = 'field_image';
@@ -77,12 +77,12 @@ function coast_recent_changes_views_default_views() {
     'image_style' => 'medium',
     'image_link' => '',
   );
-  /* Sort criterion: 內容: 發表日期 */
+  /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* Filter criterion: 內容: 已發表 */
+  /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
@@ -96,7 +96,7 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['title'] = '快訊';
   $handler->display->display_options['display_description'] = '「快訊」的最新內容';
   $handler->display->display_options['defaults']['header'] = FALSE;
-  /* 頁首: 全域: Unfiltered text */
+  /* 頁首: Global: Unfiltered text */
   $handler->display->display_options['header']['area_text_custom']['id'] = 'area_text_custom';
   $handler->display->display_options['header']['area_text_custom']['table'] = 'views';
   $handler->display->display_options['header']['area_text_custom']['field'] = 'area_text_custom';
@@ -104,7 +104,7 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['header']['area_text_custom']['content'] = '<h1 class="title_news_flash">快訊</h1>
 <span class="pic"><a href="#"><img src="/sites/all/themes/coast/images/dummy_news.jpg" width="100" height="100" alt="aa" /></a></span>';
   $handler->display->display_options['defaults']['empty'] = FALSE;
-  /* 無查詢結果的行為: 全域: 多行文字欄位 */
+  /* 無查詢結果的行為: Global: Text area */
   $handler->display->display_options['empty']['area']['id'] = 'area';
   $handler->display->display_options['empty']['area']['table'] = 'views';
   $handler->display->display_options['empty']['area']['field'] = 'area';
@@ -114,14 +114,14 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['empty']['area']['format'] = 'html';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter criterion: 內容: 已發表 */
+  /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: 內容: 類型 */
+  /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -146,7 +146,7 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['title'] = '知識庫';
   $handler->display->display_options['display_description'] = '知識庫除了「快訊」與「事件簿」的最新內容';
   $handler->display->display_options['defaults']['header'] = FALSE;
-  /* 頁首: 全域: Unfiltered text */
+  /* 頁首: Global: Unfiltered text */
   $handler->display->display_options['header']['area_text_custom']['id'] = 'area_text_custom';
   $handler->display->display_options['header']['area_text_custom']['table'] = 'views';
   $handler->display->display_options['header']['area_text_custom']['field'] = 'area_text_custom';
@@ -154,13 +154,13 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['header']['area_text_custom']['content'] = '<h1 class="title_library">知識庫</h1>
 <span class="pic"><a href="#"><img src="/sites/all/themes/coast/images/dummy_knowledge.jpg" width="100" height="100" alt="aa" /></a></span>';
   $handler->display->display_options['defaults']['footer'] = FALSE;
-  /* 頁尾: 全域: Unfiltered text */
+  /* 頁尾: Global: Unfiltered text */
   $handler->display->display_options['footer']['area_text_custom']['id'] = 'area_text_custom';
   $handler->display->display_options['footer']['area_text_custom']['table'] = 'views';
   $handler->display->display_options['footer']['area_text_custom']['field'] = 'area_text_custom';
   $handler->display->display_options['footer']['area_text_custom']['content'] = '<a href="/libraries" class="moreLink">more</a>';
   $handler->display->display_options['defaults']['empty'] = FALSE;
-  /* 無查詢結果的行為: 全域: 多行文字欄位 */
+  /* 無查詢結果的行為: Global: Text area */
   $handler->display->display_options['empty']['area']['id'] = 'area';
   $handler->display->display_options['empty']['area']['table'] = 'views';
   $handler->display->display_options['empty']['area']['field'] = 'area';
@@ -170,14 +170,14 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['empty']['area']['format'] = 'html';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter criterion: 內容: 已發表 */
+  /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: 內容: 類型 */
+  /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -204,7 +204,7 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['title'] = '快訊';
   $handler->display->display_options['display_description'] = '「事件簿」的最新內容';
   $handler->display->display_options['defaults']['header'] = FALSE;
-  /* 頁首: 全域: Unfiltered text */
+  /* 頁首: Global: Unfiltered text */
   $handler->display->display_options['header']['area_text_custom']['id'] = 'area_text_custom';
   $handler->display->display_options['header']['area_text_custom']['table'] = 'views';
   $handler->display->display_options['header']['area_text_custom']['field'] = 'area_text_custom';
@@ -212,13 +212,13 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['header']['area_text_custom']['content'] = '<h1 class="title_event">事件簿</h1>
 <span class="pic"><a href="#"><img src="/sites/all/themes/coast/images/dummy_event.jpg" width="100" height="100" alt="aa" /></a></span>';
   $handler->display->display_options['defaults']['footer'] = FALSE;
-  /* 頁尾: 全域: Unfiltered text */
+  /* 頁尾: Global: Unfiltered text */
   $handler->display->display_options['footer']['area_text_custom']['id'] = 'area_text_custom';
   $handler->display->display_options['footer']['area_text_custom']['table'] = 'views';
   $handler->display->display_options['footer']['area_text_custom']['field'] = 'area_text_custom';
   $handler->display->display_options['footer']['area_text_custom']['content'] = '<a href="/event" class="moreLink">more</a>';
   $handler->display->display_options['defaults']['empty'] = FALSE;
-  /* 無查詢結果的行為: 全域: 多行文字欄位 */
+  /* 無查詢結果的行為: Global: Text area */
   $handler->display->display_options['empty']['area']['id'] = 'area';
   $handler->display->display_options['empty']['area']['table'] = 'views';
   $handler->display->display_options['empty']['area']['field'] = 'area';
@@ -228,14 +228,14 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['empty']['area']['format'] = 'html';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter criterion: 內容: 已發表 */
+  /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: 內容: 類型 */
+  /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -263,7 +263,7 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['pager']['options']['items_per_page'] = '1';
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['defaults']['header'] = FALSE;
-  /* 頁首: 全域: Unfiltered text */
+  /* 頁首: Global: Unfiltered text */
   $handler->display->display_options['header']['area_text_custom']['id'] = 'area_text_custom';
   $handler->display->display_options['header']['area_text_custom']['table'] = 'views';
   $handler->display->display_options['header']['area_text_custom']['field'] = 'area_text_custom';
@@ -272,14 +272,14 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['header']['area_text_custom']['content'] = '<h3>事件簿</h3>';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter criterion: 內容: 已發表 */
+  /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: 內容: 類型 */
+  /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -300,7 +300,7 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['pager']['options']['items_per_page'] = '1';
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['defaults']['header'] = FALSE;
-  /* 頁首: 全域: Unfiltered text */
+  /* 頁首: Global: Unfiltered text */
   $handler->display->display_options['header']['area_text_custom']['id'] = 'area_text_custom';
   $handler->display->display_options['header']['area_text_custom']['table'] = 'views';
   $handler->display->display_options['header']['area_text_custom']['field'] = 'area_text_custom';
@@ -309,14 +309,14 @@ function coast_recent_changes_views_default_views() {
   $handler->display->display_options['header']['area_text_custom']['content'] = '<h3>快訊</h3>';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter criterion: 內容: 已發表 */
+  /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 1;
   $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
-  /* Filter criterion: 內容: 類型 */
+  /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
   $handler->display->display_options['filters']['type']['field'] = 'type';
@@ -333,6 +333,7 @@ function coast_recent_changes_views_default_views() {
     t('遞增'),
     t('遞減'),
     t('「快訊」的最新內容'),
+    t('more'),
     t('<h1 class="title_news_flash">快訊</h1>
 <span class="pic"><a href="#"><img src="/sites/all/themes/coast/images/dummy_news.jpg" width="100" height="100" alt="aa" /></a></span>'),
     t('<h1 class="title_news_flash">快訊</h1>
