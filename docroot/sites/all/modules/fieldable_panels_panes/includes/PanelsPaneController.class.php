@@ -11,14 +11,41 @@
 class PanelsPaneController extends DrupalDefaultEntityController {
   public $entity;
 
+  /**
+   * Overrides DrupalDefaultEntityController::resetCache().
+   */
+  public function resetCache(array $ids = NULL) {
+    if (module_exists('entitycache')) {
+      EntityCacheControllerHelper::resetEntityCache($this, $ids);
+    }
+    parent::resetCache($ids);
+  }
+
+  /**
+   * Overrides DrupalDefaultEntityController::load().
+   */
+  public function load($ids = array(), $conditions = array()) {
+    if (module_exists('entitycache')) {
+      return EntityCacheControllerHelper::entityCacheLoad($this, $ids, $conditions);
+    }
+    else {
+      return parent::load($ids, $conditions);
+    }
+  }
+
+  /**
+   * Overrides DrupalDefaultEntityController::attachLoad().
+   */
   public function attachLoad(&$queried_entities, $revision_id = FALSE) {
     parent::attachLoad($queried_entities, $revision_id);
 
     // We need to go through and unserialize our serialized fields.
-    foreach ($queried_entities as $entity) {
-      foreach (array('view_access', 'edit_access') as $key) {
-        if (is_string($entity->$key)) {
-          $entity->$key = unserialize($entity->$key);
+    if (!empty($queried_entities)) {
+      foreach ($queried_entities as $entity) {
+        foreach (array('view_access', 'edit_access') as $key) {
+          if (is_string($entity->$key)) {
+            $entity->$key = unserialize($entity->$key);
+          }
         }
       }
     }
@@ -34,7 +61,7 @@ class PanelsPaneController extends DrupalDefaultEntityController {
   }
 
   public function access($op, $entity = NULL, $account = NULL) {
-    if ($op !== 'create' && !$entity) {
+    if ($op !== 'create' && empty($entity)) {
       return FALSE;
     }
 
@@ -43,22 +70,22 @@ class PanelsPaneController extends DrupalDefaultEntityController {
       return TRUE;
     }
 
-    switch ($op) {
-      case 'create':
-        return user_access('create fieldable ' . $entity);
+    $bundle = is_string($entity) ? $entity : $entity->bundle;
 
-      case 'view':
-        ctools_include('context');
-        return ctools_access($entity->view_access, fieldable_panels_panes_get_base_context($entity));
-
-      case 'update':
-        ctools_include('context');
-        return user_access('edit fieldable ' . $entity->bundle) && ctools_access($entity->edit_access, fieldable_panels_panes_get_base_context($entity));
-
-      case 'delete':
-        ctools_include('context');
-        return user_access('delete fieldable ' . $entity->bundle) && ctools_access($entity->edit_access, fieldable_panels_panes_get_base_context($entity));
-
+    if ($op == 'create') {
+      return user_access('create fieldable ' . $bundle);
+    }
+    elseif ($op == 'view') {
+      ctools_include('context');
+      return ctools_access($entity->view_access, fieldable_panels_panes_get_base_context($entity));
+    }
+    elseif ($op == 'update') {
+      ctools_include('context');
+      return user_access('edit fieldable ' . $bundle) && ctools_access($entity->edit_access, fieldable_panels_panes_get_base_context($entity));
+    }
+    elseif ($op == 'delete') {
+      ctools_include('context');
+      return user_access('delete fieldable ' . $bundle) && ctools_access($entity->edit_access, fieldable_panels_panes_get_base_context($entity));
     }
 
     return FALSE;
@@ -70,6 +97,11 @@ class PanelsPaneController extends DrupalDefaultEntityController {
     $entity->is_new = !(isset($entity->fpid) && is_numeric($entity->fpid));
 
     $transaction = db_transaction();
+
+    // Load the stored entity, if any.
+    if (!empty($entity->fpid) && !isset($entity->original)) {
+      $entity->original = entity_load_unchanged('fieldable_panels_pane', $entity->fpid);
+    }
 
     // Set the timestamp fields.
     if (empty($entity->created)) {
@@ -84,6 +116,7 @@ class PanelsPaneController extends DrupalDefaultEntityController {
     $entity->changed = REQUEST_TIME;
 
     field_attach_presave('fieldable_panels_pane', $entity);
+    module_invoke_all('fieldable_panels_pane_presave', $entity);
     module_invoke_all('entity_presave', $entity, 'fieldable_panels_pane');
 
     // When saving a new entity revision, unset any existing $entity->vid
@@ -95,8 +128,6 @@ class PanelsPaneController extends DrupalDefaultEntityController {
       $entity->timestamp = REQUEST_TIME;
     }
 
-    module_invoke_all('entity_presave', $entity, 'fieldable_panels_pane');
-
     try {
       if (!$entity->is_new) {
         // Since we already have an fpid, write the revision to ensure the
@@ -105,6 +136,7 @@ class PanelsPaneController extends DrupalDefaultEntityController {
         drupal_write_record('fieldable_panels_panes', $entity, 'fpid');
 
         field_attach_update('fieldable_panels_pane', $entity);
+        module_invoke_all('fieldable_panels_pane_update', $entity);
         module_invoke_all('entity_update', $entity, 'fieldable_panels_pane');
 
       }
@@ -120,6 +152,7 @@ class PanelsPaneController extends DrupalDefaultEntityController {
           ->execute();
 
         field_attach_insert('fieldable_panels_pane', $entity);
+        module_invoke_all('fieldable_panels_pane_insert');
         module_invoke_all('entity_insert', $entity, 'fieldable_panels_pane');
       }
 
@@ -162,21 +195,20 @@ class PanelsPaneController extends DrupalDefaultEntityController {
   }
 
   public function view($entity, $view_mode = 'full', $langcode = NULL) {
-    // Allow modules to change the view mode.
-    $context = array(
-      'entity_type' => 'fieldable_panels_pane',
-      'entity' => $entity,
-      'langcode' => $langcode,
-    );
-    drupal_alter('entity_view_mode', $view_mode, $context);
+    if (!isset($langcode)) {
+      $langcode = $GLOBALS['language_content']->language;
+    }
 
-    // attach our fields and prepare the pane for rendering
-    field_attach_prepare_view('fieldable_panels_pane', array($entity->fpid => $entity), $view_mode, $langcode);
-    entity_prepare_view('fieldable_panels_pane', array($entity->fpid => $entity), $langcode);
-    $build = field_attach_view('fieldable_panels_pane', $entity, $view_mode, $langcode);
+    // Populate $entity->content with a render() array.
+    $this->buildContent($entity, $view_mode, $langcode);
+    $build = $entity->content;
+
+    // We don't need duplicate rendering info in $entity->content.
+    unset($entity->content);
+
     $build += array(
-      '#fieldable_panels_pane' => $entity,
       '#theme' => 'fieldable_panels_pane',
+      '#fieldable_panels_pane' => $entity,
       '#element' => $entity,
       '#view_mode' => $view_mode,
       '#language' => $langcode,
@@ -190,10 +222,69 @@ class PanelsPaneController extends DrupalDefaultEntityController {
       $build['#contextual_links']['fieldable_panels_panes'] = array('admin/structure/fieldable-panels-panes/view', array($entity->fpid));
     }
 
-    $entity_type = 'fieldable_panels_pane';
-    drupal_alter(array('fieldable_panels_pane_view', 'entity_view'), $build, $entity_type);
+    // Allow modules to modify the structured pane.
+    $type = 'fieldable_panels_pane';
+    drupal_alter(array('fieldable_panels_pane_view', 'entity_view'), $build, $type);
 
     return $build;
+  }
+
+  /**
+   * Builds a structured array representing the fieldable panel pane's content.
+   *
+   * @param object $entity
+   *   A fieldable panel pane entity.
+   * @param string $view_mode
+   *   View mode, e.g. 'full', 'teaser'...
+   * @param string $langcode
+   *   (optional) A language code to use for rendering. Defaults to the global
+   *   content language of the current request.
+   */
+  public function buildContent($entity, $view_mode = 'full', $langcode = NULL) {
+    if (!isset($langcode)) {
+      $langcode = $GLOBALS['language_content']->language;
+    }
+
+    // Remove previously built content, if exists.
+    $entity->content = array();
+
+    // Add the title so that it may be controlled via other display mechanisms.
+    $entity->content['title'] = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'h2',
+      '#value' => '',
+    );
+    // Some titles link to a page.
+    if (!empty($entity->title)) {
+      if (!empty($entity->link) && !empty($entity->path)) {
+        $entity->content['title']['#value'] = l($entity->title, $entity->path);
+      }
+      else {
+        $entity->content['title']['#value'] = check_plain($entity->title);
+      }
+    }
+
+    // Allow modules to change the view mode, trigger
+    // hook_entity_view_mode_alter().
+    $context = array(
+      'entity_type' => 'fieldable_panels_pane',
+      'entity' => $entity,
+      'langcode' => $langcode,
+    );
+    drupal_alter('entity_view_mode', $view_mode, $context);
+
+    // Build fields content.
+    field_attach_prepare_view('fieldable_panels_pane', array($entity->fpid => $entity), $view_mode, $langcode);
+    entity_prepare_view('fieldable_panels_pane', array($entity->fpid => $entity), $langcode);
+    $entity->content += field_attach_view('fieldable_panels_pane', $entity, $view_mode, $langcode);
+
+    // Allow modules to make their own additions to the entity.
+    module_invoke_all('fieldable_panels_pane_view', $entity, $view_mode, $langcode);
+    module_invoke_all('entity_view', $entity, 'fieldable_panels_pane', $view_mode, $langcode);
+
+    // Make sure the current view mode is stored if no module has already
+    // populated the related key.
+    $entity->content += array('#view_mode' => $view_mode);
   }
 
   public function delete($fpids) {
@@ -201,26 +292,30 @@ class PanelsPaneController extends DrupalDefaultEntityController {
     if (!empty($fpids)) {
       $entities = fieldable_panels_panes_load_multiple($fpids, array());
 
-      try {
-        foreach ($entities as $fpid => $entity) {
-          // Call the entity-specific callback (if any):
-          module_invoke_all('entity_delete', $entity, 'fieldable_panels_pane');
-          field_attach_delete('fieldable_panels_pane', $entity);
+      if (!empty($entities)) {
+        try {
+          foreach ($entities as $fpid => $entity) {
+            // Call the entity-specific callback (if any):
+            module_invoke_all('fieldable_panels_pane_delete', $entity);
+            module_invoke_all('entity_delete', $entity, 'fieldable_panels_pane');
+            field_attach_delete('fieldable_panels_pane', $entity);
+          }
+
+          // Delete after calling hooks so that they can query entity tables as
+          // needed.
+          db_delete('fieldable_panels_panes')
+            ->condition('fpid', $fpids, 'IN')
+            ->execute();
+
+          db_delete('fieldable_panels_panes_revision')
+            ->condition('fpid', $fpids, 'IN')
+            ->execute();
         }
-
-        // Delete after calling hooks so that they can query entity tables as needed.
-        db_delete('fieldable_panels_panes')
-          ->condition('fpid', $fpids, 'IN')
-          ->execute();
-
-        db_delete('fieldable_panels_panes_revision')
-          ->condition('fpid', $fpids, 'IN')
-          ->execute();
-      }
-      catch (Exception $e) {
-        $transaction->rollback();
-        watchdog_exception('fieldable_panels_pane', $e);
-        throw $e;
+        catch (Exception $e) {
+          $transaction->rollback();
+          watchdog_exception('fieldable_panels_pane', $e);
+          throw $e;
+        }
       }
 
       // Clear the page and block and entity_load_multiple caches.
@@ -256,5 +351,4 @@ class PanelsPaneController extends DrupalDefaultEntityController {
 
     return $entity;
   }
-
 }

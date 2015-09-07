@@ -6,7 +6,7 @@ more consistently and in line with modern standards. We researched the
 differences between default browser styles in order to precisely target only the
 styles that need normalizing.
 
-Check out the demo at http://necolas.github.com/normalize.css/2.1.0/test.html
+Check out the demo at http://necolas.github.com/normalize.css/3.0.2/test.html
 
 
 WHAT DOES IT DO?

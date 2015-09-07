@@ -123,7 +123,7 @@ function field_group_table_field_group_format_settings($group) {
         '#type' => 'select',
         '#options' => array(
           FIELD_GROUP_TABLE_EMPTY_LABEL_KEEP => t('Keep empty label cell'),
-          FIELD_GROUP_TABLE_EMPTY_LABEL_MERGE => t('Merge cells')
+          FIELD_GROUP_TABLE_EMPTY_LABEL_MERGE => t('Merge cells'),
         ),
         '#default_value' => isset($settings['empty_label_behavior']) ? $settings['empty_label_behavior'] : $formatter['instance_settings']['empty_label_behavior'],
       );
@@ -155,7 +155,6 @@ function field_group_table_field_group_pre_render(&$element, $group, &$form) {
     return;
   }
 
-  $view_mode = isset($form['#view_mode']) ? $form['#view_mode'] : 'form';
   $mode = $group->mode == 'form' ? 'form' : 'display';
   $settings = $group->format_settings['instance_settings'];
   $label = check_plain($group->label);
@@ -209,20 +208,15 @@ function field_group_table_field_group_pre_render(&$element, $group, &$form) {
 function theme_field_group_table_wrapper($variables) {
   $element = $variables['element'];
   $mode = $element['#mode'];
-  $groups = $element['#groups'];
   $settings = $element['#settings'];
+
+  // Allow modules to alter the rows, useful for removing empty rows.
+  $children = element_children($element, TRUE);
+  drupal_alter('field_group_table_rows', $element, $children);
 
   // Build the table rows.
   $rows = array();
-  foreach (element_children($element, TRUE) as $child) {
-    // In some cases a child may be completely empty and therefore will be
-    // useless to us, because it will render as an empty table row. See
-    // http://drupal.org/node/1985606 for example.
-    if ($mode == 'display' && !in_array($child, $groups) && !isset($element[$child]['#theme']) && !isset($element[$child]['#markup']) && !isset($element[$child]['#prefix']) && !isset($element[$child]['#suffix'])) {
-      unset($element[$child]);
-      continue;
-    }
-
+  foreach ($children as $child) {
     $variables = array(
       'element' => $element[$child],
       'settings' => $settings,
@@ -235,12 +229,17 @@ function theme_field_group_table_wrapper($variables) {
 
   $element['#field_group_table']['#rows'] = $rows;
 
-  $output = '<div id="' . $element['#id'] . '"' . drupal_attributes($element['#attributes']) . ">\n";
-  $output .= drupal_render($element['#caption']) . "\n";
-  $output .= drupal_render($element['#field_group_table']) . "\n";
-  $output .= "</div>\n";
+  $render = array(
+    '#theme' => 'container',
+    '#attributes' => array(
+      'id' => isset($element['#id']) ? $element['#id'] : '',
+    ) + $element['#attributes'],
+  );
 
-  return $output;
+  $render['#children'] = drupal_render($element['#caption']) . "\n";
+  $render['#children'] .= drupal_render($element['#field_group_table']) . "\n";
+
+  return drupal_render($render);
 }
 
 /**
@@ -317,20 +316,33 @@ function _field_group_table_row_build($variables) {
       $title = '';
       if (isset($variables['element']['#title'])) {
         $title = $variables['element']['#title'];
-        unset($variables['element']['#title']);
+        $required = $variables['element']['#required'];
+
+        $variables['element']['#title'] = '';
+        $variables['element']['#required'] = FALSE;
       }
       elseif (isset($variables['element']['#language']) && isset($variables['element'][$variables['element']['#language']]['#title'])) {
         $title = $variables['element'][$variables['element']['#language']]['#title'];
-        unset($variables['element'][$variables['element']['#language']]['#title']);
+        $required = $variables['element'][$variables['element']['#language']]['#required'];
+
+        $variables['element'][$variables['element']['#language']]['#title'] = '';
+        $variables['element'][$variables['element']['#language']]['#required'] = FALSE;
       }
       elseif (isset($variables['element']['#language']) && isset($variables['element'][$variables['element']['#language']][0]['#title'])) {
         $title = $variables['element'][$variables['element']['#language']][0]['#title'];
-        unset($variables['element'][$variables['element']['#language']][0]['#title']);
+        $required = $variables['element'][$variables['element']['#language']][0]['#required'];
+
+        $variables['element'][$variables['element']['#language']][0]['#title'] = '';
+        $variables['element'][$variables['element']['#language']][0]['#required'] = FALSE;
       }
 
       if ($title != '' || ($title == '' && $variables['settings']['empty_label_behavior'] == FIELD_GROUP_TABLE_EMPTY_LABEL_KEEP)) {
         $row['data'][] = array(
-          'data' => ($title == '') ? '&nbsp;' : $title,
+          'data' => ($title == '') ? '&nbsp;' : array(
+            '#type' => 'item',
+            '#title' => $title,
+            '#required' => $required,
+          ),
           'header' => TRUE,
           'class' => $class,
         );
@@ -349,4 +361,37 @@ function _field_group_table_row_build($variables) {
   );
 
   return $row;
+}
+
+/**
+ * Implements hook_field_group_table_rows_alter().
+ *
+ * In some cases a child may be completely empty and therefore will be useless,
+ * because it will render as an empty table row. See
+ * http://drupal.org/node/1985606 for example. This function removes the most
+ * common occurrences of empty rows.
+ */
+function field_group_table_field_group_table_rows_alter(&$element, &$children) {
+  // Only operate on "display" mode.
+  if ($element['#mode'] != 'display') {
+    return;
+  }
+
+  $render_api_properties = array('#theme', '#markup', '#prefix', '#suffix');
+
+  foreach ($children as $index => $child) {
+    // A row containing another fieldgroup is not empty.
+    if (in_array($child, $element['#groups'])) {
+      continue;
+    }
+
+    // A row containing render API code is not empty.
+    if (is_array($element[$child]) && array_intersect($render_api_properties, array_keys($element[$child]))) {
+      continue;
+    }
+
+    // This an empty row, remove it.
+    unset($children[$index]);
+    unset($element[$child]);
+  }
 }

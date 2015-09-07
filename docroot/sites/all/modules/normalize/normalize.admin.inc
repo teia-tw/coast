@@ -15,12 +15,12 @@ function normalize_admin_settings_form($form, &$form_state) {
   $form['normalize_version'] = array(
     '#type' => 'radios',
     '#title' => t('Choose which Normalize.css to use'),
-    '#default_value' => variable_get('normalize_version', '2'),
+    '#default_value' => variable_get('normalize_version', '3'),
     '#options' => array(
-      '2' => t('Version 2 without support for IE 6/7'),
+      '3' => t('Version 3 without support for IE 6/7'),
       '1' => t('Version 1 with support for IE 6/7'),
     ),
-    '#description' => t('Normalize version 2 is a simpler stylesheet because it lacks support for the older IE 6/7 browsers.'),
+    '#description' => t('Normalize version 3 is a simpler stylesheet because it lacks support for the older IE 6/7 browsers.'),
   );
 
   $form['submit'] = array(

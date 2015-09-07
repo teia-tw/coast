@@ -8,7 +8,7 @@
  * Implements hook_init().
  */
 function normalize_init() {
-  $version = variable_get('normalize_version', '2');
+  $version = variable_get('normalize_version', '3');
   drupal_add_css(
     drupal_get_path('module', 'normalize') . '/css-version' . $version . '/normalize.css',
     array(
