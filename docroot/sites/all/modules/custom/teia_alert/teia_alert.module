@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * Implements hook_block_info().
+ */
+function teia_alert_block_info() {
+    $blocks = array();
+    $blocks['teia_alert_submit_incident'] = array(
+      'info' => t('海岸 99 「通報事件」按鈕'),
+    );
+    return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function teia_alert_block_view($delta = '') {
+  if ($delta == 'teia_alert_submit_incident') {
+    return array(
+      'subject' => '',
+      'content' => '<a href="http://alert.e-info.org.tw/reports/submit" class="submit-incident">通報事件</a>',
+    );
+  }
+}

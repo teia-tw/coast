@@ -1,0 +1,20 @@
+
+.submit-incident {
+  background-color: #d24836;
+  text-shadow: 1px 1px 0px #424242;
+  padding: 8px 10px 8px 35px;
+  background-image: url("/sites/all/modules/custom/teia_alert/images/submit-incident.png");
+  background-position: 10px 8px;
+  background-repeat: no-repeat;
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 14px;
+  text-decoration: none;
+  float: right;
+  height: 32.45px;
+  line-height: 18px;
+  position: absolute;
+  top: 27px;
+  right: 200px;
+}

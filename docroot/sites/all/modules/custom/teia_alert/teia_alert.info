@@ -1,0 +1,4 @@
+name = 海岸 99 整合功能
+core = 7.x
+
+stylesheets[screen][] = styles.css
