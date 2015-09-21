@@ -56,3 +56,4 @@
   sudo_user: postgres
   shell: psql -d drupal < /tmp/database.pgsql
   when: db.changed or dbfile.changed
+  register: dbdata
