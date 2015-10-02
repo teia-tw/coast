@@ -9,3 +9,4 @@ dependencies[] = ctools_custom_content
 features[ctools][] = ctools_custom_content:ctools_content:1
 features[ctools_custom_content][] = coast_staticlayerswitcher
 features[features_api][] = api:2
+stylesheets[screen][] = styles.css
