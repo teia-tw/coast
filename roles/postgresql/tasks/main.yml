@@ -37,7 +37,7 @@
 
 - name: unarchive database dump file when it exists
   ignore_errors: yes
-  shell: gunzip /tmp/database.pgsql.gz > /tmp/database.pgsql
+  shell: gunzip /tmp/database.pgsql.gz
   when: dbfile.changed
 
 - name: ensure database is present
