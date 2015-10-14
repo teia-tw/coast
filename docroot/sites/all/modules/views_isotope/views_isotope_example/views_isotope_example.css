@@ -1,7 +1,7 @@
 * {
   -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 /* ---- button ---- */
@@ -10,7 +10,7 @@
 .sorterbutton {
   display: inline-block;
   padding: 0.5em 1.0em;
-  background: #EEE;
+  background: #eee;
   border: none;
   border-radius: 7px;
   background-image: linear-gradient( to bottom, hsla(0, 0%, 0%, 0), hsla(0, 0%, 0%, 0.2) );
@@ -23,7 +23,7 @@
 
 .filterbutton:hover,
 .sorterbutton:hover {
-  background-color: #8CF;
+  background-color: #8cf;
   text-shadow: 0 1px hsla(0, 0%, 100%, 0.5);
   color: #222;
 }
@@ -32,7 +32,7 @@
 .filterbutton.selected,
 .sorterbutton:active,
 .sorterbutton.selected {
-  background-color: #28F;
+  background-color: #28f;
 }
 
 .filterbutton.selected,
@@ -55,7 +55,7 @@ ul.option-set {
 }
 
 ul.option-set li {
-  float:left;
+  float: left;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -76,14 +76,19 @@ ul.option-set li {
 }
 
 .option-set li:first-child .filterbutton,
-.option-set li:first-child .sorterbutton { border-radius: 0.5em 0 0 0.5em; }
+.option-set li:first-child .sorterbutton {
+  border-radius: 0.5em 0 0 0.5em;
+}
+
 .option-set li:last-child .filterbutton,
-.option-set li:last-child .sorterbutton { border-radius: 0 0.5em 0.5em 0; }
+.option-set li:last-child .sorterbutton {
+  border-radius: 0 0.5em 0.5em 0;
+}
 
 /* ---- isotope ---- */
 
 .isotope-container {
-  background: #DDD;
+  background: #ddd;
   max-width: 1200px;
 }
 
@@ -94,49 +99,74 @@ ul.option-set li {
   clear: both;
 }
 
+.item-list ul.isotope-container {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
 /* isotope-options */
 
-.isotope-options {
-  display: inline-block;
-}
-
-.isotope-options h2 {
-  display: inline-block;
-  vertical-align: top;
-  line-height: 32px;
-  margin-right: 0.2em;
-  font-size: 16px;
-}
-
-.isotope-options .option-set {
+.item-list ul.isotope-options {
+  list-style: none;
   display: inline-block;
   margin-right: 20px;
+  padding: 0;
 }
 
+.item-list ul.isotope-options li {
+  padding: 0;
+  margin: 0;
+}
+
+
 /* color-shape */
+
+.item-list li.isotope-element {
+  list-style: none;
+  margin: 5px;
+  padding: 0;
+}
 
 .isotope-element {
   width: 70px;
   height: 70px;
   margin: 5px;
   float: left;
+  background: black;
 }
 
 .isotope-element * {
-  display:none;
+  display: none;
 }
- 
+
 .isotope-element.round {
   border-radius: 35px;
 }
- 
+
 .isotope-element.big.round {
   border-radius: 75px;
 }
- 
-.isotope-element.red { background: red; }
-.isotope-element.blue { background: blue; }
-.isotope-element.yellow { background: yellow; }
- 
-.isotope-element.wide, .isotope-element.big { width: 150px; }
-.isotope-element.tall, .isotope-element.big { height: 150px; }
+
+.isotope-element.red {
+  background: red;
+}
+.isotope-element.blue {
+  background: blue;
+}
+.isotope-element.yellow {
+  background: yellow;
+}
+
+.isotope-element.wide,
+.isotope-element.big {
+  width: 150px;
+}
+.isotope-element.tall,
+.isotope-element.big {
+  height: 150px;
+}
+
+.thisIsCustomisedLabel {
+  color: red;
+}

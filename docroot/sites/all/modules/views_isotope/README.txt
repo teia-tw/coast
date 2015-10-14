@@ -1,19 +1,28 @@
 Views Isotope
 -------------
-Views Isotope is a views style plugin that allows views to return results as jQuery Isotope styled structure.
+Views Isotope implements the javascript isotope package by metafizzy.
 
 ## Dependencies
-* views
-* jquery_update
+* ctools
 * libraries
 
+## Included modules
+* 'views_isotope': Allows you to create isotope configurations and theme lists
+using 'isotope_grid'. Don't be fooled by the prefix, this has nothing to do with
+views, and can be used without the views module.
+* 'views_isotope_views': Provides views plugins for isotope.
+* 'views_isotope_example': A sample implementation of isotope that can be copied
+for your own project.
+
 ## Installation
-* Download the latest version of [jquery.isotope.min.js][jquery.isotope]
-* Place jquery.isotope.min.js in sites/all/libraries/jquery.isotope/
+* Download the latest version of [jquery.isotope]
+* Place isotope.pkgd.min.js in sites/all/libraries/isotope/
 
-### Note
-The D7 version of this module was based on a D6 version found in @funkym's sandbox
-The D6 code was build using methods borrowed from views_cycle
+### Notes
+* 7.x-2.0-alpha1 is a placeholder of a working version, prior to a major
+rewrite. There is no upgrade path from that version to later versions.
+* The D7 version of this module was based on a D6 version found in @funkym's
+sandbox
+* The D6 code was build using methods borrowed from views_cycle
 
-[jquery.isotope]: http://isotope.metafizzy.co/jquery.isotope.min.js
-[views_cycle]: http://drupal.org/project/views_cycle
+[jquery.isotope]: https://github.com/metafizzy/isotope/blob/master/dist/isotope.pkgd.min.js

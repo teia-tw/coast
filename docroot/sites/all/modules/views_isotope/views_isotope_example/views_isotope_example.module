@@ -1,35 +1,46 @@
 <?php
+/**
+ * @file
+ * Simple example module.
+ */
 
+/**
+ * Page callback.
+ *
+ * This is an example of using standard theme functions to output your own
+ * lists, without using views.
+ *
+ * @return array
+ *   Drupal render array.
+ */
+function views_isotope_example_theme_page() {
 
-function views_isotope_example_menu() {
-  $items['test_isotope'] = array(
-    'title' => 'Isotope Theme Example',
-    'page callback' => 'views_isotope_example_page',
-    'access callback' => TRUE,
+  $return[] = array(
+    '#markup' => t('<p>You can explore this example for yourself at <strong>views_isotope_example_page()</strong>.</p>'),
   );
-  return $items;
-}
 
-function views_isotope_example_page(){
-
-  //The label can be anything, including images, etc. Filtering happens on the key.
+  // The label can be anything, including images, etc. Filtering happens on the
+  // key.
   $colors = array(
-    'blue' => 'Blue', 
-    'red' => '<span class="thisIsCustomisedLabel">Red</span>', 
-    'yellow' => 'Yellow'
+    'blue' => 'Blue',
+    'red' => '<span class="thisIsCustomisedLabel">Red</span>',
+    'yellow' => 'Yellow',
   );
   $return[] = array(
     '#theme' => 'isotope_filter',
     '#items' => $colors,
-    '#filtername' => 'color',//Optional: unique to distinguish it from the other filters on the page.
-    '#filtertitle' => t('Colour'),//Optional: displayed as an h2
+    // Optional filtername: unique to distinguish it from the other filters on
+    // the page.
+    '#filtername' => 'color',
+    // Optional filtertitle: displayed as a list title.
+    '#filtertitle' => t('Colour'),
   );
 
   $sizes = array(
-    'small' => 'Small', 
-    'wide' => 'Wide', 
-    'big' => 'Big', 
-    'tall' => 'Tall'
+    'small' => 'Small',
+    'wide' => 'Wide',
+    'big' => 'Big',
+    'tall' => 'Tall',
   );
   $return[] = array(
     '#theme' => 'isotope_filter',
@@ -39,8 +50,8 @@ function views_isotope_example_page(){
   );
 
   $shapes = array(
-    'round' => 'Round', 
-    'square' => 'Square'
+    'round' => 'Round',
+    'square' => 'Square',
   );
   $return[] = array(
     '#theme' => 'isotope_filter',
@@ -50,68 +61,114 @@ function views_isotope_example_page(){
     '#instance' => 1,
   );
 
+  $sorts = array(
+    'Size' => 'size',
+    'shape',
+    'color',
+    array('color', 'size'),
+    'Color then Shape' => array('color', 'shape'),
+  );
   $return[] = array(
     '#theme' => 'isotope_sorter',
-    '#sorts' => array('Size' => 'size', 'shape', 'color', array('color', 'size'), 'Color then Shape' => array('color', 'shape')),
+    '#sorts' => $sorts,
     '#original' => 'Original',
     '#instance' => 1,
   );
 
-//Create items of every size shape and color
+  // Create items of every size shape and color.
   $items = array();
-  foreach($sizes as $size => $label1){
-    foreach($shapes as $shape => $label2){
-      foreach($colors as $color => $label3){
+  foreach ($sizes as $size => $label1) {
+    foreach ($shapes as $shape => $label2) {
+      foreach ($colors as $color => $label3) {
         $items[] = array(
           'value' => '<p>Item</p>',
           'data' => array(
             'size' => $size,
             'shape' => $shape,
             'color' => $color,
-            ),
-          );
+          ),
+        );
       }
     }
   }
-
-  ####### First Instance #########
 
   $return[] = array(
     '#theme' => 'isotope_grid',
     '#items' => $items,
     '#instance' => 1,
     '#attached' => array(
-      'css' => array(drupal_get_path('module', 'views_isotope_example') . '/views_isotope_example.css')
-      ),
+      'css' => array(drupal_get_path('module', 'views_isotope_example') . '/views_isotope_example.css'),
+    ),
   );
 
+  return $return;
+}
 
-  ####### Second Instance #########
+/**
+ * Implements hook_views_api().
+ */
+function views_isotope_example_views_api() {
+  return array('api' => 3.0);
+}
+
+/**
+ * Implements hook_preprocess_views_view().
+ */
+function views_isotope_example_preprocess_views_view(&$vars) {
+  if ($vars['name'] == 'isotope_example') {
+    drupal_add_css(drupal_get_path('module', 'views_isotope_example') . '/views_isotope_example.css');
+  }
+}
+
+/**
+ * Implements hook_node_info().
+ */
+function views_isotope_example_node_info() {
+  return array(
+    'views_isotope_example' => array(
+      'name' => t('Isotope Example Node Type'),
+      'base' => 'views_isotope_example',
+      'description' => t('This is an example node type with a few fields.'),
+      'title_label' => t('Example Title'),
+      'locked' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function views_isotope_example_menu() {
+  $items['isotope-example'] = array(
+    'title' => 'Isotope Examples',
+    'page callback' => 'views_isotope_example_page',
+    'access callback' => TRUE,
+  );
+  $items['isotope-example/theme-example'] = array(
+    'title' => 'Isotope Theme Example',
+    'page callback' => 'views_isotope_example_theme_page',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+/**
+ * Page callback.
+ *
+ * @return array
+ *   Drupal render array.
+ */
+function views_isotope_example_page() {
+  $links[] = l(t('Theme Example'), 'isotope-example/theme-example');
+
+  if (module_exists('views_isotope_views')) {
+    $links[] = l(t('Views Example'), 'isotope-example/views-example');
+  }
 
   $return[] = array(
-    '#theme' => 'isotope_filter',
-    '#items' => $shapes,
-    '#filtername' => 'shape',
-    '#filtertitle' => t('Shapes'),
-    '#instance' => 'wombat',
+    '#theme' => 'item_list',
+    '#items' => $links,
+    '#type' => 'ul',
   );
-
-  $return[] = array(
-    '#theme' => 'isotope_sorter',
-    '#sorts' => array('Size' => 'size', 'shape', 'color', array('color', 'size'), 'Color then Shape' => array('color', 'shape')),
-    '#original' => 'Original',
-    '#instance' => 'wombat',
-  );
-
-  $return[] = array(
-    '#theme' => 'isotope_grid',
-    '#items' => $items,
-    '#instance' => 'wombat',
-    '#config' => 'vertical',
-    '#attached' => array(
-      'css' => array(drupal_get_path('module', 'views_isotope_example') . '/views_isotope_example.css')
-      ),
-  );
-
   return $return;
 }
